@@ -38,3 +38,9 @@ yarn-error.log*
 *.njsproj
 *.sln
 *.sw?
+
+# Local data and logs
+server/uploads/
+server/logs/
+uploads/
+logs/
