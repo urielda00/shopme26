@@ -1,21 +1,34 @@
-import { useEffect, useState } from 'react';
+import NavBar from './components/NavBar';
+import Footer from './components/Footer';
+import { useLocation } from 'react-router-dom';
+import ScrollToTop from './components/ScrollToTop';
+import { ReactQueryDevtools } from 'react-query/devtools';
+import AdminController from './components/AdminController';
+import Router from './Router';
 
-function App() {
-  const [message, setMessage] = useState('Loading...');
+const App = () => {
+    const { pathname } = useLocation();
 
-  useEffect(() => {
-    fetch('/api/hello')
-      .then((res) => res.json())
-      .then((data) => setMessage(data.message))
-      .catch(() => setMessage('Error connecting to backend'));
-  }, []);
+    // In Vite, use import.meta.env instead of process.env
+    // Ensure the variable in your .env starts with VITE_
+    const backUrl = import.meta.env.VITE_BASE_BACK_URL;
 
-  return (
-    <div style={{ textAlign: 'center', marginTop: '50px' }}>
-      <h1>ShopMe 2026 - Test Page</h1>
-      <p>Backend Status: <strong>{message}</strong></p>
-    </div>
-  );
-}
+    return (
+        <>
+            <NavBar />
+            <AdminController />
+            
+            <main> {/* Recommended for SEO and layout structure */}
+                <Router />
+            </main>
+
+            <ScrollToTop />
+            <ReactQueryDevtools initialIsOpen={false} position='bottom-right' />
+            
+            {/* Cleaner conditional rendering */}
+            {pathname !== '/productsList' && <Footer />}
+        </>
+    );
+};
 
 export default App;
