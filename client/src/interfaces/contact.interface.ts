@@ -1,6 +1,3 @@
-/**
- * Interface for a single field in the contact form
- */
 export interface IContactField {
     id: string;
     name: string;
@@ -11,9 +8,6 @@ export interface IContactField {
     autoComplete?: string;
 }
 
-/**
- * Props for the Contact Form component
- */
-export interface IContactFormProps {
-    formData: IContactField[];
+export interface ContactFormProps {
+    fields: IContactField[];
 }

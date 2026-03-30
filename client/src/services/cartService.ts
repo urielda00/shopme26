@@ -1,4 +1,4 @@
-import axiosInstance from '../../utils/axiosInstance';
+import axiosInstance from '../utils/axiosInstance';
 
 // Add product: POST /cart/add
 export const addToCartAPI = (productId: string, quantity: number, price: number) => {

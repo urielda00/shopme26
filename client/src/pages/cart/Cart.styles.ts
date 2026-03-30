@@ -1,15 +1,20 @@
 import { SxProps, Theme } from '@mui/material';
 
-// The main page wrapper
+/**
+ * The main page wrapper for the Cart.
+ * Combines heights from all previous responsive versions.
+ */
 export const pageContainerSx: SxProps<Theme> = {
     display: 'flex',
     justifyContent: 'center',
     bgcolor: 'var(--containerPinkBackground)',
-    minHeight: { xs: '100vh', md: '85vh', lg: '83.4vh' }, // Merged from all files
+    minHeight: { xs: '100vh', md: '85vh', lg: '83.4vh' },
     py: 4
 };
 
-// Cart Item Stack
+/**
+ * Responsive stack for a single cart item.
+ */
 export const cartItemSx: SxProps<Theme> = {
     p: 2,
     borderBottom: '1px solid #eee',
@@ -17,7 +22,9 @@ export const cartItemSx: SxProps<Theme> = {
     textAlign: { xs: 'center', sm: 'left' }
 };
 
-// Summary Card
+/**
+ * The Summary side-card configuration.
+ */
 export const summaryPaperSx: SxProps<Theme> = {
     p: 3,
     bgcolor: '#f9f9f9',
@@ -26,7 +33,9 @@ export const summaryPaperSx: SxProps<Theme> = {
     top: '20px'
 };
 
-// Shared Checkout Button Style
+/**
+ * Reusable checkout button styling.
+ */
 export const checkoutBtnSx: SxProps<Theme> = {
     mt: 1,
     height: '50px',

@@ -7,13 +7,12 @@ import { ICartItem } from '../../interfaces/cart.interface';
 
 interface Props {
     item: ICartItem;
-    onIncrement: (id: string) => void;
-    onDecrement: (id: string) => void;
-    onRemove: (id: string) => void;
+    onIncrement: () => void; // Changed to void as the logic is handled in the parent
+    onDecrement: () => void;
+    onRemove: () => void;
 }
 
 const CartItem: FC<Props> = ({ item, onIncrement, onDecrement, onRemove }) => {
-    // Get base URL from environment variables
     const backUrl = import.meta.env.VITE_BASE_BACK_URL;
 
     return (
@@ -35,16 +34,20 @@ const CartItem: FC<Props> = ({ item, onIncrement, onDecrement, onRemove }) => {
             </Box>
 
             <Stack direction="row" alignItems="center" spacing={1}>
-                <IconButton size="small" onClick={() => onDecrement(item._id)}><RemoveIcon /></IconButton>
+                <IconButton size="small" onClick={onDecrement} disabled={item.itemQuantity <= 1}>
+                    <RemoveIcon />
+                </IconButton>
                 <Typography>{item.itemQuantity}</Typography>
-                <IconButton size="small" onClick={() => onIncrement(item._id)}><AddIcon /></IconButton>
+                <IconButton size="small" onClick={onIncrement}>
+                    <AddIcon />
+                </IconButton>
             </Stack>
 
             <Typography fontWeight="bold" sx={{ minWidth: 60, textAlign: 'right' }}>
-                {item.price * item.itemQuantity}$
+                {(item.price * item.itemQuantity).toFixed(2)}$
             </Typography>
 
-            <IconButton color="error" onClick={() => onRemove(item._id)}><CloseIcon /></IconButton>
+            <IconButton color="error" onClick={onRemove}><CloseIcon /></IconButton>
         </Stack>
     );
 };

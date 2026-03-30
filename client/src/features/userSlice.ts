@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import * as Types from '../interfaces/slicesInitialStates.interface';
+import { InitialUserState } from '../interfaces/state.interface';
 
-const initialState: Types.InitialUserState = {
+const initialState: InitialUserState = {
     profile: '',
     user: false,
     userId: false,
@@ -26,7 +26,7 @@ const userSlice = createSlice({
         },
 
         loggedOut: (state) => {
-            // Clearing storage should ideally happen in a Thunk or Component, not here
+            // Clearing storages and redirecting
             window.localStorage.clear();
             window.sessionStorage.clear();
             

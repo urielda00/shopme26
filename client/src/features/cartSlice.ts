@@ -1,127 +1,158 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import * as Types from '../interfaces/slicesInitialStates.interface';
-// Note: Ensure these services use the updated Axios instance with withCredentials: true
-import { resetCartAPI } from '../services/Cart/resetCart';
-import { removeItemAPI } from '../services/Cart/removeItem';
-import { updateQuantityAPI } from '../services/Cart/updateQuantity'; // Unified function
-import { addToCartAPI } from '../services/Cart/addToCart';
-import { syncCartAPI } from '../services/Cart/syncCart'; // New sync function
+import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+import { ICartItem } from '../interfaces/cart.interface';
+import * as CartAPI from '../services/cartService';
 
-const initialState: Types.InitialCartState = {
-    cart: [],
+/**
+ * Interface for the cart state
+ */
+interface CartState {
+    items: ICartItem[];
+    totalPrice: number;
+    totalQuantity: number;
+    loading: boolean;
+    error: string | null;
+    warningMessage: boolean;
+}
+
+const initialState: CartState = {
+    items: [],
     totalPrice: 0,
     totalQuantity: 0,
+    loading: false,
+    error: null,
     warningMessage: false,
 };
+
+// --- Async Thunks ---
+
+export const addToCartThunk = createAsyncThunk(
+    'cart/add',
+    async (product: ICartItem, { rejectWithValue }) => {
+        try {
+            const isLogged = window.sessionStorage.getItem('isLogged') === 'true';
+            if (isLogged) {
+                await CartAPI.addToCartAPI(product._id, 1, product.price);
+            }
+            return product;
+        } catch (error: any) {
+            return rejectWithValue(error.message);
+        }
+    }
+);
+
+export const updateQuantityThunk = createAsyncThunk(
+    'cart/updateQuantity',
+    async ({ productId, action, price }: { productId: string; action: 'inc' | 'dec'; price: number }, { rejectWithValue }) => {
+        try {
+            const isLogged = window.sessionStorage.getItem('isLogged') === 'true';
+            if (isLogged) {
+                await CartAPI.updateQuantityAPI(productId, action);
+            }
+            return { productId, action, price };
+        } catch (error: any) {
+            return rejectWithValue(error.message);
+        }
+    }
+);
+
+export const removeItemThunk = createAsyncThunk(
+    'cart/removeItem',
+    async (item: ICartItem, { rejectWithValue }) => {
+        try {
+            const isLogged = window.sessionStorage.getItem('isLogged') === 'true';
+            if (isLogged) {
+                await CartAPI.removeItemAPI(item._id);
+            }
+            return item;
+        } catch (error: any) {
+            return rejectWithValue(error.message);
+        }
+    }
+);
+
+export const resetCartThunk = createAsyncThunk(
+    'cart/reset',
+    async (_, { rejectWithValue }) => {
+        try {
+            const isLogged = window.sessionStorage.getItem('isLogged') === 'true';
+            if (isLogged) {
+                await CartAPI.resetCartAPI();
+            }
+            return;
+        } catch (error: any) {
+            return rejectWithValue(error.message);
+        }
+    }
+);
+
+// --- Slice ---
 
 export const cartSlice = createSlice({
     name: 'cart',
     initialState,
     reducers: {
-        addToCart: (state, action: PayloadAction<any>) => {
-            const isLogged = window.sessionStorage.getItem('isLogged');
-            const itemIndex = state.cart.findIndex((item: any) => item._id === action.payload._id);
-
-            if (itemIndex >= 0) {
-                const item = state.cart[itemIndex];
-                if (item.quantity - item.itemQuantity > 0) {
-                    item.itemQuantity++;
-                    state.totalPrice += action.payload.price;
-                    // Server call without userName - identified by token
-                    if (isLogged === 'true') addToCartAPI(action.payload._id, 1, action.payload.price);
-                } else {
-                    state.warningMessage = true;
-                }
-            } else {
-                const tempProduct = { ...action.payload, itemQuantity: 1 };
-                state.cart.push(tempProduct);
-                state.totalPrice += action.payload.price;
-                state.totalQuantity += 1;
-                if (isLogged === 'true') addToCartAPI(action.payload._id, 1, action.payload.price);
-            }
-        },
-
-        incrementQuantity: (state, action: PayloadAction<any>) => {
-            const isLogged = window.sessionStorage.getItem('isLogged');
-            const itemIndex = state.cart.findIndex((item: any) => item._id === action.payload._id);
-            const item = state.cart[itemIndex];
-
-            if (item.quantity - item.itemQuantity > 0) {
-                item.itemQuantity++;
-                state.totalPrice += item.price;
-                // Update based on server instructions: action 'inc'
-                if (isLogged === 'true') updateQuantityAPI(item._id, 'inc');
-            } else {
-                state.warningMessage = true;
-            }
-        },
-
-        decrementQuantity: (state, action: PayloadAction<any>) => {
-            const isLogged = window.sessionStorage.getItem('isLogged');
-            const itemIndex = state.cart.findIndex((item: any) => item._id === action.payload._id);
-            const item = state.cart[itemIndex];
-
-            if (item.itemQuantity > 1) {
-                item.itemQuantity--;
-                state.totalPrice -= item.price;
-                // Update based on server instructions: action 'dec'
-                if (isLogged === 'true') updateQuantityAPI(item._id, 'dec');
-            }
-        },
-
-        removeItem: (state, action: PayloadAction<any>) => {
-            const isLogged = window.sessionStorage.getItem('isLogged');
-            const itemIndex = state.cart.findIndex((item: any) => item._id === action.payload._id);
-
-            if (itemIndex !== -1) {
-                const item = state.cart[itemIndex];
-                // Delete using ID in URL param
-                if (isLogged === 'true') removeItemAPI(item._id);
-                
-                state.totalPrice -= (item.itemQuantity * item.price);
-                state.totalQuantity -= 1;
-                state.cart.splice(itemIndex, 1);
-                state.warningMessage = false;
-            }
-        },
-
-        deleteAllCart: (state) => {
-            state.cart = [];
-            state.totalPrice = 0;
-            state.totalQuantity = 0;
-            state.warningMessage = false;
-            if (window.sessionStorage.getItem('isLogged') === 'true') {
-                // No userName needed
-                resetCartAPI(); 
-            }
-        },
-
-        // Sync local cart to server after login
-        syncUserCart: (state) => {
-            if (state.cart.length > 0) {
-                syncCartAPI(state.cart);
-            }
-        },
-
-        setUserCart: (state, action: PayloadAction<{ cart: any[]; totalItemsInCart: number; totalPrice: number }>) => {
-            state.cart = action.payload.cart;
+        setUserCart: (state, action: PayloadAction<{ cart: ICartItem[]; totalItemsInCart: number; totalPrice: number }>) => {
+            state.items = action.payload.cart;
             state.totalQuantity = action.payload.totalItemsInCart;
             state.totalPrice = action.payload.totalPrice;
         },
-
         resetOnLogOut: () => initialState,
+        clearWarning: (state) => {
+            state.warningMessage = false;
+        }
     },
+    extraReducers: (builder) => {
+        builder
+            // Add to Cart
+            .addCase(addToCartThunk.fulfilled, (state, action: PayloadAction<ICartItem>) => {
+                const itemIndex = state.items.findIndex(item => item._id === action.payload._id);
+                if (itemIndex >= 0) {
+                    const item = state.items[itemIndex];
+                    if (item.quantity - item.itemQuantity > 0) {
+                        item.itemQuantity++;
+                        state.totalPrice += action.payload.price;
+                    } else {
+                        state.warningMessage = true;
+                    }
+                } else {
+                    state.items.push({ ...action.payload, itemQuantity: 1 });
+                    state.totalPrice += action.payload.price;
+                    state.totalQuantity += 1;
+                }
+            })
+            // Update Quantity (Inc/Dec)
+            .addCase(updateQuantityThunk.fulfilled, (state, action) => {
+                const item = state.items.find(i => i._id === action.payload.productId);
+                if (item) {
+                    if (action.payload.action === 'inc') {
+                        if (item.quantity - item.itemQuantity > 0) {
+                            item.itemQuantity++;
+                            state.totalPrice += action.payload.price;
+                        } else {
+                            state.warningMessage = true;
+                        }
+                    } else if (action.payload.action === 'dec' && item.itemQuantity > 1) {
+                        item.itemQuantity--;
+                        state.totalPrice -= action.payload.price;
+                    }
+                }
+            })
+            // Remove Item
+            .addCase(removeItemThunk.fulfilled, (state, action: PayloadAction<ICartItem>) => {
+                const itemIndex = state.items.findIndex(item => item._id === action.payload._id);
+                if (itemIndex !== -1) {
+                    const item = state.items[itemIndex];
+                    state.totalPrice -= (item.itemQuantity * item.price);
+                    state.totalQuantity -= 1;
+                    state.items.splice(itemIndex, 1);
+                }
+            })
+            // Reset Cart
+            .addCase(resetCartThunk.fulfilled, (state) => {
+                return initialState;
+            });
+    }
 });
 
-export const { 
-    addToCart, 
-    incrementQuantity, 
-    decrementQuantity, 
-    removeItem, 
-    deleteAllCart, 
-    setUserCart, 
-    resetOnLogOut,
-    syncUserCart 
-} = cartSlice.actions;
-
+export const { setUserCart, resetOnLogOut, clearWarning } = cartSlice.actions;
 export default cartSlice.reducer;

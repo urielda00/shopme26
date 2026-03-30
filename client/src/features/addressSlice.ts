@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import * as Types from '../interfaces/slicesInitialStates.interface';
+import { InitialAddressState } from '../interfaces/state.interface';
 
-const initialState: Types.InitialAddressState = {
+const initialState: InitialAddressState = {
     isAddress: {
         Zip: '',
         City: '',
@@ -17,12 +17,12 @@ const addressSlice = createSlice({
     name: 'address',
     initialState,
     reducers: {
-        // Renamed action for clarity: setAddress instead of isAddress
-        setAddress: (state, action: PayloadAction<Types.InitialAddressState['isAddress']>) => {
+        // Updated state mapping
+        setAddress: (state, action: PayloadAction<InitialAddressState['isAddress']>) => {
             state.isAddress = action.payload;
         },
     },
 });
 
-export default addressSlice.reducer;
 export const { setAddress } = addressSlice.actions;
+export default addressSlice.reducer;

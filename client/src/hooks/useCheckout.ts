@@ -1,28 +1,45 @@
 import { useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../app/hooks';
-import { createOrderAPI } from '../services/orderService'; // Using our new service
-import { deleteAllCart } from '../features/cartSlice';
+import { createOrderAPI } from '../services/orderService'; 
+import { resetCartThunk } from '../features/cartSlice'; // Use the professional Thunk
 
 const useCheckout = () => {
     const dispatch = useAppDispatch();
-    const steps = ['Cart', 'Delivery', 'Payment'];
-    const { cart, totalPrice } = useAppSelector((state) => state.cart);
+    const { items, totalPrice } = useAppSelector((state) => state.cart);
     const { isAddress } = useAppSelector((state) => state.address);
 
     const [activeStep, setActiveStep] = useState(0);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
     const [isOrderCompleted, setIsOrderCompleted] = useState(false);
+
+    const steps = ['Cart', 'Delivery', 'Payment'];
 
     const handleNext = () => setActiveStep((prev) => prev + 1);
     const handleBack = () => setActiveStep((prev) => prev - 1);
 
+    /**
+     * Finalizes the order and clears the cart on success.
+     */
     const handleFinalSubmit = async () => {
+        setIsLoading(true);
+        setError(null);
         try {
-            // Server only needs address, it knows the user and cart from cookies
+            // Validation: Ensure address exists before API call
+            if (!isAddress?.AddressLine) {
+                throw new Error("Delivery address is missing.");
+            }
+
             await createOrderAPI(isAddress.AddressLine); 
-            dispatch(deleteAllCart());
+            
+            // Clear cart globally (server + local)
+            await dispatch(resetCartThunk()).unwrap();
+            
             setIsOrderCompleted(true);
-        } catch (error) {
-            console.error('Order failed', error);
+        } catch (err: any) {
+            setError(err.message || 'Order process failed. Please try again.');
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -30,7 +47,9 @@ const useCheckout = () => {
         steps,
         activeStep,
         totalPrice,
-        cart,
+        items,
+        isLoading,
+        error,
         isOrderCompleted,
         handleNext,
         handleBack,

@@ -8,18 +8,18 @@
     box-sizing: border-box;
 }
 
-html {
-    scroll-behavior: smooth;
+html, body {
+    /* Essential for full-screen scroll snapping */
     height: 100%;
-}
-
-body {
-    min-width: 400px;
-    min-height: 100vh;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    /* Prevents the browser's default scrollbar from fighting with your container */
+    overflow: hidden; 
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
     font-family: 'Tahoma', 'Segoe UI', Geneva, Verdana, sans-serif;
-    background-color: var(--white);
+    background-color: #000000; /* Matching your theme */
 }
 
 /* --- Variables --- */
@@ -27,27 +27,23 @@ body {
     /* Colors */
     --white: #ffffff;
     --black: #000000;
-    --dark-grey: #27374d;
+    --cartBtnDarkGrey: #27374d; 
     --nav-cream: #f9f5f6;
     --cart-green: #af5;
     --cart-dark-grey: #332d2d;
-    --container-pink: #d2c9ff;
+    --containerPinkBackground: #d2c9ff; 
     --info-blue: #30a2ff;
-    --container-white: #ece8dd;
+    --containerWhiteBackground: #ece8dd; 
     --text-muted: #526d82;
     --btn-green: #47a992;
     --btn-green-hover: #5d9c59;
 
     /* Layout */
-    --width-full: 100%;
+    --width: 100%; 
     --list-style-none: none;
 }
 
 /* --- Layout Components --- */
-main {
-    min-height: calc(100vh - 150px); /* Adjust based on your NavBar/Footer height */
-}
-
 ul {
     list-style: var(--list-style-none);
 }
@@ -63,31 +59,22 @@ input[type=number] {
     -moz-appearance: textfield;
 }
 
-/* --- Custom Scrollbars --- */
-/* Global Scrollbar */
+/* --- Custom Scrollbars (Global settings for all containers) --- */
 ::-webkit-scrollbar {
-    width: 12px;
+    width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-    background: #f1d4e5;
-    border-radius: 10px;
+    background: #000000;
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #105d5f73;
+    background: #333333;
     border-radius: 10px;
-    border: 3px solid #f1d4e5;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: #105c5fa7;
-}
-
-/* Specific Scrollbar Classes */
-.ScrollCartStyle::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    background: #444444;
 }
 
 /* --- UI Components --- */
@@ -95,7 +82,7 @@ input[type=number] {
 /* Pop-up Styles */
 .popup-overlay {
     position: fixed;
-    inset: 0; /* Shortcut for top, left, right, bottom: 0 */
+    inset: 0; 
     background-color: rgba(0, 0, 0, 0.6);
     display: flex;
     justify-content: center;
