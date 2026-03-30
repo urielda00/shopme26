@@ -40,7 +40,7 @@ app.use('/order', orderRouter);
 app.use('/resetPass', resetPassRouter);
 app.use('/cart', cartRouter);
 
-// 5. Global Error Handling Middleware (MUST be after routes)
+// 5. Global Error Handling Middleware
 app.use((err, req, res, next) => {
     const statusCode = err.statusCode || 500;
     const message = err.message || 'Internal Server Error';
@@ -53,15 +53,17 @@ app.use((err, req, res, next) => {
     });
 });
 
-// 6. Database Connection with Async/Await
+// 6. Database Connection logic using MONGO_URI
 const connectDB = async () => {
     try {
-        if (!process.env.DB_URL) {
-            throw new Error('DB_URL is not defined in .env file');
+        const mongoURI = process.env.MONGO_URI;
+
+        if (!mongoURI) {
+            throw new Error('MONGO_URI is not defined in .env file');
         }
         
-        await mongoose.connect(process.env.DB_URL);
-        console.log('Connected to MongoDB successfully!');
+        await mongoose.connect(mongoURI);
+        console.log('Successfully connected to MongoDB database');
         
         app.listen(port, () => {
             console.log(`Server is running on port: ${port}`);
@@ -73,7 +75,7 @@ const connectDB = async () => {
     }
 };
 
-// 7. Handle unhandled promise rejections outside of express
+// 7. Handle unhandled promise rejections
 process.on('unhandledRejection', (err) => {
     console.log('UNHANDLED REJECTION! Shutting down...');
     console.error(err);
