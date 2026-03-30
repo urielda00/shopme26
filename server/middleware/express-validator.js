@@ -148,3 +148,24 @@ export const createOrderValidation = [
 	check('address').trim().notEmpty().withMessage('Shipping address is required'),
 	check('productsId').notEmpty().withMessage('Your cart is empty'),
 ];
+
+// RESET PASSWORD VALIDATION
+export const resetPasswordValidation = [
+    check('password')
+        .trim()
+        .notEmpty()
+        .withMessage('New password is required')
+        .isLength({ min: 5 })
+        .withMessage('Password must be at least 5 characters long'),
+    
+    check('confirmPassword')
+        .trim()
+        .notEmpty()
+        .withMessage('Please confirm your new password')
+        .custom((value, { req }) => {
+            if (value !== req.body.password) {
+                throw new Error('Passwords do not match');
+            }
+            return true;
+        }),
+];

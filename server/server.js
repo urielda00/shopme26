@@ -5,17 +5,16 @@ import morgan from 'morgan';
 import express from 'express';
 import mongoose from 'mongoose';
 import cookieParser from 'cookie-parser';
-import fileupload from 'express-fileupload';
 
 // 1. Load environment variables FIRST
 dotenv.config();
 
-// Routers imports
-import cartRouter from './routes/cart.js';
-import orderRouter from './routes/order.js';
-import productRouter from './routes/products.js';
-import userAuthRouter from './routes/userAuth.js';
-import resetPassRouter from './routes/resetPass.js';
+// Routers imports - Updated to match our new naming convention
+import cartRouter from './routes/cartRouter.js';
+import orderRouter from './routes/orderRouter.js';
+import userRouter from './routes/userRouter.js';
+import productRouter from './routes/productRouter.js';
+import resetPassRouter from './routes/resetPassRouter.js';
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -24,17 +23,32 @@ const port = process.env.PORT || 5000;
 app.use(helmet());
 app.use(helmet.crossOriginResourcePolicy({ policy: 'cross-origin' }));
 app.use(morgan('common'));
-app.use(cors());
-app.use(express.json({ limit: '30mb' }));
-app.use(express.urlencoded({ limit: '30mb', extended: true }));
+
+// CORS setup for multiple origins
+const allowedOrigins = process.env.CLIENT_URL ? process.env.CLIENT_URL.split(',').map(origin => origin.trim()) : [];
+app.use(cors({
+    origin: (origin, callback) => {
+        // Allow requests with no origin (like mobile apps or curl requests)
+        if (!origin) return callback(null, true);
+        
+        if (allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true // Required to allow cookies/sessions
+}));
+
+app.use(express.json({ limit: '10mb' })); // 10mb is usually enough for MERN
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
 app.use(cookieParser());
-app.use(fileupload());
 
 // 3. Static Files
 app.use('/uploads', express.static('uploads'));
 
-// 4. Routes
-app.use('/auth', userAuthRouter);
+// 4. Routes Integration
+app.use('/auth', userRouter);
 app.use('/product', productRouter);
 app.use('/order', orderRouter);
 app.use('/resetPass', resetPassRouter);
@@ -45,7 +59,7 @@ app.use((err, req, res, next) => {
     const statusCode = err.statusCode || 500;
     const message = err.message || 'Internal Server Error';
     
-    // In production, don't expose the stack trace to the client
+    // In production, we hide the stack trace for security
     res.status(statusCode).json({
         success: false,
         message,
@@ -53,7 +67,7 @@ app.use((err, req, res, next) => {
     });
 });
 
-// 6. Database Connection logic using MONGO_URI
+// 6. Database Connection logic
 const connectDB = async () => {
     try {
         const mongoURI = process.env.MONGO_URI;
@@ -70,7 +84,6 @@ const connectDB = async () => {
         });
     } catch (error) {
         console.error(`Database Connection Error: ${error.message}`);
-        // Exit process with failure if DB connection fails
         process.exit(1);
     }
 };
