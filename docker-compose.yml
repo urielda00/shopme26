@@ -1,0 +1,26 @@
+services:
+  backend:
+    build:
+      context: ./server
+      target: development # Points to the development stage
+    container_name: shopme-backend
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./server:/app     # Syncs local code with container for Hot Reload
+      - /app/node_modules # Prevents local node_modules from overwriting container
+    env_file: ./server/.env
+
+  frontend:
+    build:
+      context: ./client
+      target: development
+    container_name: shopme-frontend
+    ports:
+      - "5173:5173" # Vite default port
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+    env_file: ./client/.env
+    environment:
+      - CHOKIDAR_USEPOLLING=true # Essential for file change detection in Docker
