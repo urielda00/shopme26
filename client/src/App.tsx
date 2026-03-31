@@ -26,7 +26,7 @@ const App = () => {
             {/* <ReactQueryDevtools initialIsOpen={false} position='bottom-right' /> */}
             
             {/* Cleaner conditional rendering */}
-            {pathname !== '/productsList' && <Footer />}
+            {/* {pathname !== '/productsList' && <Footer />} */}
         </>
     );
 };

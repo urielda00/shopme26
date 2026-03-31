@@ -1,60 +1,220 @@
 import { FC } from 'react';
-import { Container, Typography, Box } from '@mui/material';
+import { Container, Typography, Box, Button, BoxProps } from '@mui/material';
 import Grid from '@mui/material/Grid2';
+import { Link } from 'react-router-dom';
+import { motion, Variants, MotionProps } from 'framer-motion';
 import { useAppSelector, useAppDispatch } from '../../app/hooks';
-// Import the new Thunks
 import { updateQuantityThunk, removeItemThunk } from '../../features/cartSlice';
 import CartItem from '../../components/cart/CartItem';
 import CartSummary from '../../components/cart/CartSummary';
-import { ICartItem } from '../../interfaces'; 
-import { pageContainerSx } from './Cart.styles';
-import { commonContainerSx } from '../../styles/common.styles';
+import { ICartItem } from '../../interfaces';
+import { pageContainerSx, cartContentWrapperSx, checkoutBtnSx } from './Cart.styles';
+
+// Merge MUI BoxProps with Framer MotionProps
+const MotionBox = motion(Box) as React.FC<BoxProps & MotionProps>;
+
+// Animation variants
+const containerVariants: Variants = {
+    hidden: { opacity: 0 },
+    visible: {
+        opacity: 1,
+        transition: { staggerChildren: 0.1, duration: 0.5 }
+    }
+};
+
+const itemVariants: Variants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+        opacity: 1,
+        y: 0,
+        transition: { duration: 0.4, ease: 'easeOut' }
+    }
+};
 
 const CartPage: FC = () => {
-    // Select items and totals from the new state structure
-    const { items, totalPrice, totalQuantity } = useAppSelector((state) => state.cart);
+    let { items, totalPrice, totalQuantity } = useAppSelector((state) => state.cart);
     const dispatch = useAppDispatch();
+    const useMockData = true;
 
+    // Mock data for UI testing
+    if (useMockData) {
+        items = [
+            {
+                _id: '1',
+                productName: 'Premium Wireless Headphones',
+                price: 299.99,
+                quantity: 10,
+                itemQuantity: 1,
+                category: 'Audio',
+                image: ''
+            },
+            {
+                _id: '2',
+                productName: 'Minimalist Smartwatch',
+                price: 450.0,
+                quantity: 5,
+                itemQuantity: 2,
+                category: 'Wearables',
+                image: ''
+            },
+            {
+                _id: '3',
+                productName: 'Minimalist Smartwatch',
+                price: 450.0,
+                quantity: 5,
+                itemQuantity: 2,
+                category: 'Wearables',
+                image: ''
+            },
+            {
+                _id: '4',
+                productName: 'Minimalist Smartwatch',
+                price: 450.0,
+                quantity: 5,
+                itemQuantity: 2,
+                category: 'Wearables',
+                image: ''
+            },
+            {
+                _id: '5',
+                productName: 'Minimalist Smartwatch',
+                price: 450.0,
+                quantity: 5,
+                itemQuantity: 2,
+                category: 'Wearables',
+                image: ''
+            }
+        ];
+        totalPrice = 1199.99;
+        totalQuantity = 3;
+    }
+
+    // Layout wrapper
+    const renderCartWrapper = (children: React.ReactNode) => (
+        <Box sx={pageContainerSx}>
+            <Container maxWidth="lg">
+                <MotionBox
+                    variants={containerVariants}
+                    initial="hidden"
+                    animate="visible"
+                    sx={cartContentWrapperSx}
+                >
+                    {children}
+                </MotionBox>
+            </Container>
+        </Box>
+    );
+
+    // Empty cart state
     if (items.length === 0) {
-        return (
-            <Box sx={pageContainerSx}>
-                <Container sx={{ py: 10, textAlign: 'center' }}>
-                    <Typography variant="h5">Your shopping cart is empty.</Typography>
-                </Container>
-            </Box>
+        return renderCartWrapper(
+            <MotionBox
+                variants={itemVariants}
+                sx={{
+                    py: 12,
+                    textAlign: 'center',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: 4
+                }}
+            >
+                <Typography variant="h5" color="#86868B" sx={{ fontWeight: 400 }}>
+                    Your cart is empty.
+                </Typography>
+
+                <Button component={Link} to="/productsList" sx={{ ...checkoutBtnSx, px: 6 }}>
+                    Discover Products
+                </Button>
+            </MotionBox>
         );
     }
 
-    return (
-        <Box sx={[commonContainerSx, { bgcolor: 'var(--containerPinkBackground)', py: 4 }]}>
-            <Container maxWidth="lg">
-                <Typography variant="h4" sx={{ mb: 4, fontWeight: 'bold', fontFamily: '"Tilt Prism", cursive' }}>
-                    Shopping Cart
-                </Typography>
-                
-                <Grid container spacing={4}>
-                    <Grid size={{ xs: 12, md: 8 }}>
-                        <Box sx={{ bgcolor: 'white', borderRadius: 2, boxShadow: 1, overflow: 'hidden' }}>
-                            {items.map((item: ICartItem) => (
-                                <CartItem 
-                                    key={item._id}
-                                    item={item}
-                                    // Passing the logic via Thunks
-                                    onIncrement={() => dispatch(updateQuantityThunk({ productId: item._id, action: 'inc', price: item.price }))}
-                                    onDecrement={() => dispatch(updateQuantityThunk({ productId: item._id, action: 'dec', price: item.price }))}
-                                    onRemove={() => dispatch(removeItemThunk(item))}
-                                />
-                            ))}
-                        </Box>
-                    </Grid>
+    // Main layout
+    return renderCartWrapper(
+        <Grid container spacing={5} alignItems="flex-start">
+            {/* Left side: title + items */}
+            <Grid
+                size={{ xs: 12, md: 8 }}
+                sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    minHeight: 0 // Required for internal scrolling
+                }}
+            >
+                <MotionBox variants={itemVariants}>
+                    <Typography
+                        sx={{
+                            fontWeight: 600,
+                            letterSpacing: '-0.5px',
+                            color: '#1d1d1f',
+                            fontSize: { xs: '1.75rem', md: '3rem' },
+                            textAlign: { xs: 'center', md: 'left' },
+                            mb: { xs: 3, md: 4 }
+                        }}
+                    >
+                        Your Cart
+                    </Typography>
+                </MotionBox>
 
-                    <Grid size={{ xs: 12, md: 4 }}>
-                        {/* Summary now only needs to consume from store or props, we'll keep props for purity */}
-                        <CartSummary totalPrice={totalPrice} totalQuantity={totalQuantity} />
-                    </Grid>
-                </Grid>
-            </Container>
-        </Box>
+                {/* Scrollable items container */}
+                <Box
+    sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        flex: 1,
+        minHeight: 0,
+        maxHeight: { xs: 'unset', lg: 'calc(100vh - 260px)' },
+        overflowY: { xs: 'unset', lg: 'auto' },
+        pr: { xs: 0, lg: 2 },
+
+        '&::-webkit-scrollbar': { width: '6px' },
+        '&::-webkit-scrollbar-track': { background: 'transparent' },
+        '&::-webkit-scrollbar-thumb': {
+            background: 'rgba(255, 255, 255, 0.15)',
+            borderRadius: '10px'
+        },
+        '&::-webkit-scrollbar-thumb:hover': {
+            background: 'rgba(255, 255, 255, 0.3)'
+        }
+    }}
+>
+                    {items.map((item: ICartItem) => (
+                        <MotionBox key={item._id} variants={itemVariants}>
+                            <CartItem
+                                item={item}
+                                onIncrement={() =>
+                                    dispatch(
+                                        updateQuantityThunk({
+                                            productId: item._id,
+                                            action: 'inc',
+                                            price: item.price
+                                        })
+                                    )
+                                }
+                                onDecrement={() =>
+                                    dispatch(
+                                        updateQuantityThunk({
+                                            productId: item._id,
+                                            action: 'dec',
+                                            price: item.price
+                                        })
+                                    )
+                                }
+                                onRemove={() => dispatch(removeItemThunk(item))}
+                            />
+                        </MotionBox>
+                    ))}
+                </Box>
+            </Grid>
+
+            {/* Right side: summary */}
+            <Grid size={{ xs: 12, md: 4 }}>
+                <MotionBox variants={itemVariants}>
+                    <CartSummary totalPrice={totalPrice} totalQuantity={totalQuantity} />
+                </MotionBox>
+            </Grid>
+        </Grid>
     );
 };
 

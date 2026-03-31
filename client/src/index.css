@@ -9,46 +9,41 @@
 }
 
 html, body {
-    /* Essential for full-screen scroll snapping */
     height: 100%;
     width: 100%;
     margin: 0;
     padding: 0;
-    /* Prevents the browser's default scrollbar from fighting with your container */
-    overflow: hidden; 
+    overflow-x: hidden;
+    overflow-y: auto;
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
     font-family: 'Tahoma', 'Segoe UI', Geneva, Verdana, sans-serif;
-    background-color: #000000; /* Matching your theme */
+    background: linear-gradient(135deg, #f5f7fb 0%, #edf2f8 45%, #f8fafc 100%);
+    color: #111827;
 }
 
 /* --- Variables --- */
 :root {
-    /* Colors */
     --white: #ffffff;
     --black: #000000;
-    --cartBtnDarkGrey: #27374d; 
+    --cartBtnDarkGrey: #27374d;
     --nav-cream: #f9f5f6;
     --cart-green: #af5;
     --cart-dark-grey: #332d2d;
-    --containerPinkBackground: #d2c9ff; 
+    --containerPinkBackground: #d2c9ff;
     --info-blue: #30a2ff;
-    --containerWhiteBackground: #ece8dd; 
+    --containerWhiteBackground: #ece8dd;
     --text-muted: #526d82;
     --btn-green: #47a992;
     --btn-green-hover: #5d9c59;
-
-    /* Layout */
-    --width: 100%; 
+    --width: 100%;
     --list-style-none: none;
 }
 
-/* --- Layout Components --- */
 ul {
     list-style: var(--list-style-none);
 }
 
-/* --- Form Elements --- */
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
     -webkit-appearance: none;
@@ -59,47 +54,45 @@ input[type=number] {
     -moz-appearance: textfield;
 }
 
-/* --- Custom Scrollbars (Global settings for all containers) --- */
+/* --- Custom Scrollbars --- */
 ::-webkit-scrollbar {
     width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-    background: #000000;
+    background: #eef2f7;
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #333333;
+    background: rgba(99, 102, 241, 0.22);
     border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: #444444;
+    background: rgba(99, 102, 241, 0.36);
 }
 
 /* --- UI Components --- */
-
-/* Pop-up Styles */
 .popup-overlay {
     position: fixed;
-    inset: 0; 
-    background-color: rgba(0, 0, 0, 0.6);
+    inset: 0;
+    background-color: rgba(15, 23, 42, 0.28);
     display: flex;
     justify-content: center;
     align-items: center;
     z-index: 1000;
-    backdrop-filter: blur(2px);
+    backdrop-filter: blur(4px);
 }
 
 .popup {
     width: 90%;
     max-width: 500px;
-    background-color: var(--white);
+    background: linear-gradient(135deg, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.82) 100%);
     padding: 2rem;
-    border-radius: 12px;
+    border-radius: 16px;
     text-align: center;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-    border: 1px solid #ddd;
+    box-shadow: 0 20px 50px rgba(15, 23, 42, 0.12);
+    border: 1px solid rgba(255,255,255,0.7);
     display: flex;
     flex-direction: column;
     gap: 1rem;

@@ -1,58 +1,109 @@
-import { FC } from 'react';
-import { Grid2 as Grid, Paper, Box, Avatar, Typography } from '@mui/material';
-import PhoneIcon from '@mui/icons-material/Phone';
-import ContactFormFields from './ContactFormFields';
-import { IContactField } from '../../interfaces/contact.interface';
-import { contactPageWrapperSx, imageGridSx, formContainerSx } from './Contact.styles';
-import { commonContainerSx } from '../../styles/common.styles';
+import { FC } from "react";
+import { Box, Typography } from "@mui/material";
+import { motion } from "framer-motion";
+import ContactFormFields from "./ContactFormFields";
+import { IContactField } from "../../interfaces/contact.interface";
+
+const MotionBox = motion(Box);
 
 const contactFields: IContactField[] = [
-    { id: 'email', name: 'email', label: 'Email Address', autoComplete: 'email', type: 'email' },
-    { id: 'phone', name: 'phone', label: 'Phone Number', autoComplete: 'phone', type: 'tel' },
-    { id: 'fName', name: 'fName', label: 'First Name', autoComplete: 'given-name', type: 'text' },
-    { id: 'lName', name: 'lName', label: 'Last Name', autoComplete: 'family-name', type: 'text' },
-    { id: 'moreInfo', name: 'moreInfo', label: 'Provide information here...', multiline: true, rows: 4 },
+	{ id: "email", name: "email", label: "Email Address", autoComplete: "email", type: "email" },
+	{ id: "phone", name: "phone", label: "Phone Number", autoComplete: "phone", type: "tel" },
+	{ id: "fName", name: "fName", label: "First Name", autoComplete: "given-name", type: "text" },
+	{ id: "lName", name: "lName", label: "Last Name", autoComplete: "family-name", type: "text" },
+	{
+		id: "moreInfo",
+		name: "moreInfo",
+		label: "Provide information here...",
+		multiline: true,
+		rows: 4,
+	},
 ];
 
 const ContactPage: FC = () => {
-    // Access Vite environment variables
-    const mailLink = import.meta.env.VITE_MAIL_LINK;
-    const thankYouLink = `${import.meta.env.VITE_FRONT_URL}/thankYou`;
+	const mailLink = import.meta.env.VITE_MAIL_LINK;
+	const thankYouLink = `${import.meta.env.VITE_FRONT_URL}/thankYou`;
 
-    return (
-        <Grid container sx={commonContainerSx}>
-            {/* Background Image Grid */}
-            <Grid size={{ xs: false, sm: 4, md: 7 }} sx={imageGridSx} />
+	return (
+    <Box
+    sx={{
+        width: '100%',
+        minHeight: 'calc(100vh - 80px)',
+        overflowX: 'hidden',
+        boxSizing: 'border-box',
+        background: 'linear-gradient(135deg, #f5f7fb 0%, #edf2f8 45%, #f8fafc 100%)',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'flex-start',
+        p: { xs: 1.5, md: 2.5 },
+        pt: { xs: '90px', md: '100px' },
+        pb: { xs: 1.5, md: 2 }
+    }}
+>
+    <MotionBox
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+        sx={{
+            width: "100%",
+            maxWidth: "760px",
+            background:
+                "linear-gradient(135deg, rgba(255,255,255,0.72) 0%, rgba(255,255,255,0.42) 100%)",
+            backdropFilter: "blur(24px) saturate(165%)",
+            WebkitBackdropFilter: "blur(24px) saturate(165%)",
+            borderRadius: "24px",
+            border: "1px solid rgba(255,255,255,0.62)",
+            boxShadow: "0 24px 60px rgba(15,23,42,0.10)",
+            p: { xs: 2, md: 3 },
+            color: "#111827",
+        }}
+    >
+				<Typography
+					component="h1"
+					variant="h4"
+					sx={{
+						mb: 1.5,
+						fontWeight: 300,
+						textAlign: "center",
+						letterSpacing: "3px",
+						textTransform: "uppercase",
+						color: "#111827",
+					}}
+				>
+					Contact Us
+				</Typography>
 
-            {/* Form Grid */}
-            <Grid size={{ xs: 12, sm: 8, md: 5 }} component={Paper} elevation={6} square>
-                <Box sx={formContainerSx}>
-                    <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-                        <PhoneIcon />
-                    </Avatar>
+				<Typography
+					sx={{
+						mb: 5,
+						textAlign: "center",
+						color: "rgba(17,24,39,0.62)",
+						fontSize: "0.98rem",
+						maxWidth: "520px",
+						mx: "auto",
+						lineHeight: 1.7,
+					}}
+				>
+					We’d love to hear from you. Send us your details and we’ll get back to you as soon as
+					possible.
+				</Typography>
 
-                    <Typography component="h1" variant="h5" sx={{ mb: 3, fontWeight: 'bold' }}>
-                        Contact Us
-                    </Typography>
+				<Box
+					component="form"
+					action={mailLink}
+					method="POST"
+					id="contactForm"
+					sx={{ width: "100%" }}
+				>
+					<input type="hidden" name="_next" value={thankYouLink} />
+					<input type="hidden" name="_subject" value="New Contact From SHOPME" />
+					<input type="hidden" name="_template" value="table" />
 
-                    <Box 
-                        component="form" 
-                        action={mailLink} 
-                        method="POST" 
-                        id="contactForm" 
-                        sx={{ mt: 1, width: '100%' }}
-                    >
-                        {/* FormSubmit Configuration Hidden Inputs */}
-                        <input type="hidden" name="_next" value={thankYouLink} />
-                        <input type="hidden" name="_subject" value="New Contact From SHOPME" />
-                        <input type="hidden" name="_template" value="table" />
-
-                        <ContactFormFields fields={contactFields} />
-                    </Box>
-                </Box>
-            </Grid>
-        </Grid>
-    );
+					<ContactFormFields fields={contactFields} />
+				</Box>
+			</MotionBox>
+		</Box>
+	);
 };
 
 export default ContactPage;
