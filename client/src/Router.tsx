@@ -1,63 +1,89 @@
-import { Route, Routes, Navigate } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 import { Suspense, lazy } from 'react';
 
-// --- Lazy Imports ---
-const HomePage = lazy(() => import('./pages/HomePage'));
-const CartPage = lazy(() => import('./pages/cart/CartPage'));
-//const Login = lazy(() => import('./pages/Login'));
-const ContactPage = lazy(() => import('./pages/contact/ContactPage'));
-const CheckoutPage = lazy(() => import('./pages/CheckoutPage')); 
+// Regular imports for core and frequently accessed pages
+import HomePage from './pages/HomePage';
+import CartPage from './pages/cart/CartPage';
+import LoginPage from './pages/LoginPage';
+import ContactPage from './pages/contact/ContactPage';
+import RegisterPage from './pages/RegisterPage';
+import Construction from './components/Construction';
+// import NotFoundPage from './pages/NotFoundPage';
+// import ProductsListPage from './pages/ProductsListPage';
 
-// const Product = lazy(() => import('./pages/Product'));
-// const NotFound = lazy(() => import('./pages/NotFound'));
-// const Register = lazy(() => import('./pages/Register'));
-// const ThankYou = lazy(() => import('./pages/ThankYou'));
-// const ResetPass = lazy(() => import('./pages/ResetPass'));
-// const ForgotPass = lazy(() => import('./pages/ForgotPass'));
-// const ProductsList = lazy(() => import('./pages/ProductsList'));
-// const UserDashboard = lazy(() => import('./pages/UserDashboard'));
-// const Construction = lazy(() => import('./components/Construction'));
+// Lazy imports for other pages
+// const ProductPage = lazy(() => import('./pages/ProductPage'));
+// const CheckOutPage = lazy(() => import('./pages/CheckOutPage'));
+// const ThankYouPage = lazy(() => import('./pages/ThankYouPage'));
+// const ResetPassPage = lazy(() => import('./pages/ResetPassPage'));
+// const ForgotPassPage = lazy(() => import('./pages/ForgotPassPage'));
+// const UserDashboardPage = lazy(() => import('./pages/UserDashboardPage'));
 
-// --- Admin Pages ---
-// const Update = lazy(() => import('./pages/AdminPages/Update'));
-// const CreateItem = lazy(() => import('./pages/AdminPages/CreateItem'));
-// const DeleteItem = lazy(() => import('./pages/AdminPages/DeleteItem'));
+// Admin Pages
+// const UpdatePage = lazy(() => import('./pages/AdminPages/UpdatePage'));
+// const CreateItemPage = lazy(() => import('./pages/AdminPages/CreateItemPage'));
+// const DeleteItemPage = lazy(() => import('./pages/AdminPages/DeleteItemPage'));
 
-// --- Auth HOCs ---
+// // Auth guards
 // import UserAuth from './utils/AuthPaths/UserAuth';
 // import AdminAuth from './utils/AuthPaths/AdminAuth';
 
 const Router = () => {
-    return (
-        <Suspense fallback={<div className="loading-container">Loading...</div>}>
-            <Routes>
-                {/* Public Routes */}
-                <Route path='/' element={<HomePage />} />
-                <Route path='/cart' element={<CartPage />} />
-                {/* <Route path='/login' element={<Login />} /> */}
-                <Route path='/contact' element={<ContactPage />} />
-                <Route path='/checkout' element={<CheckoutPage />} />
-                {/* <Route path='/register' element={<Register />} />
-                <Route path='/thankYou' element={<ThankYou />} />
-                <Route path='/forgetPass' element={<ForgotPass />} />
-                <Route path='/productsList' element={<ProductsList />} />
-                <Route path='/product/:productId' element={<Product />} />
-                <Route path='/resetPass/:id/:token' element={<ResetPass />} /> */}
+	return (
+		<Suspense fallback={<div style={{ display: 'flex', justifyContent: 'center', marginTop: '20%' }}>Loading...</div>}>
+			<Routes>
+				<Route path='/' element={<HomePage />} />
+				<Route path='/cart' element={<CartPage />} />
+				<Route path='/login' element={<LoginPage />} />
+				<Route path='/contact' element={<ContactPage />} />
+				{/* <Route path='/checkout' element={<CheckOutPage />} /> */}
+				<Route path='/register' element={<RegisterPage />} />
+				{/* <Route path='/thankYou' element={<ThankYouPage />} />
+				<Route path='/forgetPass' element={<ForgotPassPage />} />
+				<Route path='/productsList' element={<ProductsListPage />} />
+				<Route path='/product/:productId' element={<ProductPage />} />
+				<Route path='/resetPass/:id/:token' element={<ResetPassPage />} /> */}
 
-                {/* Protected User Routes */}
-                {/* <Route path='/user' element={<UserAuth><UserDashboard /></UserAuth>} /> */}
+				{/* <Route
+					path='/user'
+					element={
+						<UserAuth>
+							<UserDashboardPage />
+						</UserAuth>
+					}
+				/>
 
-                {/* Protected Admin Routes */}
-                {/* <Route path='/createItem' element={<AdminAuth><CreateItem /></AdminAuth>} />
-                <Route path='/updateItem' element={<AdminAuth><Update /></AdminAuth>} />
-                <Route path='/deleteItem' element={<AdminAuth><DeleteItem /></AdminAuth>} /> */}
+				<Route
+					path='/createItem'
+					element={
+						<AdminAuth>
+							<CreateItemPage />
+						</AdminAuth>
+					}
+				/>
 
-                {/* Fallback Routes */}
-                {/* <Route path='/underConstruction' element={<Construction />} />
-                <Route path='*' element={<Construction />} />  */}
-            </Routes>
-        </Suspense>
-    );
+				<Route
+					path='/updateItem'
+					element={
+						<AdminAuth>
+							<UpdatePage />
+						</AdminAuth>
+					}
+				/>
+
+				<Route
+					path='/deleteItem'
+					element={
+						<AdminAuth>
+							<DeleteItemPage />
+						</AdminAuth>
+					}
+				/> */}
+				<Route path='underConstruction' element={<Construction />} />
+				<Route path='*' element={<Construction />} />{/*<NotFoundPage />*/}
+			</Routes>
+		</Suspense>
+	);
 };
 
 export default Router;
