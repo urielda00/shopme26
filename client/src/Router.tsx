@@ -8,8 +8,8 @@ import LoginPage from './pages/LoginPage';
 import ContactPage from './pages/contact/ContactPage';
 import RegisterPage from './pages/RegisterPage';
 import Construction from './components/Construction';
-// import NotFoundPage from './pages/NotFoundPage';
-// import ProductsListPage from './pages/ProductsListPage';
+import NotFoundPage from './pages/NotFound';
+import ProductsPage from './pages/ProductsPage';
 
 // Lazy imports for other pages
 // const ProductPage = lazy(() => import('./pages/ProductPage'));
@@ -42,7 +42,6 @@ const Router = () => {
 				<Route path='/register' element={<RegisterPage />} />
 				{/* <Route path='/thankYou' element={<ThankYouPage />} />
 				
-				<Route path='/productsList' element={<ProductsListPage />} />
 				<Route path='/product/:productId' element={<ProductPage />} />
 				 */}
 
@@ -81,8 +80,9 @@ const Router = () => {
 						</AdminAuth>
 					}
 				/> */}
+				<Route path="/productsList" element={<ProductsPage />} />
 				<Route path='underConstruction' element={<Construction />} />
-				<Route path='*' element={<Construction />} />{/*<NotFoundPage />*/}
+				<Route path='*' element={<NotFoundPage />} />
 			</Routes>
 		</Suspense>
 	);
