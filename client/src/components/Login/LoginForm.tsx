@@ -22,7 +22,6 @@ import {
     authHeaderIconStyle,
     authLinksRowStyle,
     authPrimaryButtonStyle,
-    authSubtitleStyle,
     authTextFieldStyle,
     authTitleStyle,
 } from '../../styles/authStyles';
