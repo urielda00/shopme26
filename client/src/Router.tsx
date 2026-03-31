@@ -15,8 +15,8 @@ import Construction from './components/Construction';
 // const ProductPage = lazy(() => import('./pages/ProductPage'));
 // const CheckOutPage = lazy(() => import('./pages/CheckOutPage'));
 // const ThankYouPage = lazy(() => import('./pages/ThankYouPage'));
-// const ResetPassPage = lazy(() => import('./pages/ResetPassPage'));
-// const ForgotPassPage = lazy(() => import('./pages/ForgotPassPage'));
+const ResetPassPage = lazy(() => import('./pages/ResetPassPage'));
+const ForgotPassPage = lazy(() => import('./pages/ForgotPassPage'));
 // const UserDashboardPage = lazy(() => import('./pages/UserDashboardPage'));
 
 // Admin Pages
@@ -36,13 +36,15 @@ const Router = () => {
 				<Route path='/cart' element={<CartPage />} />
 				<Route path='/login' element={<LoginPage />} />
 				<Route path='/contact' element={<ContactPage />} />
+				<Route path='/resetPass/:id/:token' element={<ResetPassPage />} />
+				<Route path='/forgetPass' element={<ForgotPassPage />} />
 				{/* <Route path='/checkout' element={<CheckOutPage />} /> */}
 				<Route path='/register' element={<RegisterPage />} />
 				{/* <Route path='/thankYou' element={<ThankYouPage />} />
-				<Route path='/forgetPass' element={<ForgotPassPage />} />
+				
 				<Route path='/productsList' element={<ProductsListPage />} />
 				<Route path='/product/:productId' element={<ProductPage />} />
-				<Route path='/resetPass/:id/:token' element={<ResetPassPage />} /> */}
+				 */}
 
 				{/* <Route
 					path='/user'

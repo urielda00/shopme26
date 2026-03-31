@@ -5,34 +5,50 @@ import { resetPasswordAPI } from '../services/passwordService';
 
 export interface ResetFormValues {
     password: string;
-    confirmPassword: string; // Adjusted to match your API
+    confirmPassword: string;
 }
 
 export const useResetPass = () => {
     const { id, token } = useParams<{ id: string; token: string }>();
     const navigate = useNavigate();
+
     const [loading, setLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
+    const [successMessage, setSuccessMessage] = useState('');
+    const [submitError, setSubmitError] = useState('');
 
-    const { register, handleSubmit, formState, watch } = useForm<ResetFormValues>({ 
-        mode: 'onChange' 
+    const { register, handleSubmit, formState, watch, reset } = useForm<ResetFormValues>({
+        mode: 'onChange',
+        defaultValues: {
+            password: '',
+            confirmPassword: '',
+        },
     });
 
     const onSubmit = async (data: ResetFormValues) => {
-        if (!id || !token) return;
-        
+        if (!id || !token) {
+            setSubmitError('Reset link is invalid or incomplete.');
+            return;
+        }
+
+        setSubmitError('');
+        setSuccessMessage('');
         setLoading(true);
+
         try {
-            // Sending the exact object your API expects
-            await resetPasswordAPI(id, token, { 
-                password: data.password, 
-                confirmPassword: data.confirmPassword 
+            await resetPasswordAPI(id, token, {
+                password: data.password,
+                confirmPassword: data.confirmPassword,
             });
-            
-            // Navigate to login after success
-            setTimeout(() => navigate('/login'), 2000);
+
+            setSuccessMessage('Password updated successfully. Redirecting to login...');
+            reset();
+
+            setTimeout(() => {
+                navigate('/login');
+            }, 1800);
         } catch (error) {
-            // Error handled by your axios interceptor
+            setSubmitError('Something went wrong while updating your password. Please try again.');
         } finally {
             setLoading(false);
         }
@@ -48,6 +64,8 @@ export const useResetPass = () => {
         loading,
         showPassword,
         setShowPassword,
-        onSubmit
+        successMessage,
+        submitError,
+        onSubmit,
     };
 };
