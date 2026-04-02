@@ -1,15 +1,36 @@
+import mongoose from 'mongoose';
 import Cart from '../models/cartModel.js';
 import { CartInfoLogger, CartErrorLogger } from '../middleware/winston.js';
 
-// Helper function to recalculate totals and save
+// Helper function to format cart items for the frontend
+const formatCartItems = (productsArray) => {
+    return productsArray
+        // מוודא שה-populate הצליח ושיש למוצר שם (כלומר הוא נמשך מה-DB בהצלחה)
+        .filter(item => item.productId && item.productId.productName) 
+        .map(item => {
+            const product = item.productId;
+            
+            return {
+                _id: product._id.toString(),
+                productId: product._id.toString(),
+                productName: product.productName,
+                image:
+  (Array.isArray(product.productImages) && product.productImages.length > 0
+    ? product.productImages[0]
+    : product.image) || "",
+                price: item.priceAtAdd,
+                quantity: product.quantity, 
+                itemQuantity: item.quantity 
+            };
+        });
+};
+
 const updateCartAndRespond = async (cart, res, message) => {
-    // Basic calculation logic - assumes products are populated or have price info
     let totalItems = 0;
     let totalPrice = 0;
 
     cart.products.forEach(item => {
         totalItems += item.quantity;
-        // Logic assumes price is handled (either stored in cart or fetched)
         totalPrice += (item.priceAtAdd || 0) * item.quantity; 
     });
 
@@ -17,25 +38,47 @@ const updateCartAndRespond = async (cart, res, message) => {
     cart.totalPrice = totalPrice;
 
     await cart.save();
+    
+    await cart.populate('products.productId');
+
+    const formattedItems = formatCartItems(cart.products);
+
     CartInfoLogger.info(`${message} - Cart ID: ${cart._id}`);
-    return res.status(200).json({ success: true, cart });
+    return res.status(200).json({ 
+        success: true, 
+        cart: formattedItems,
+        totalPrice: cart.totalPrice,
+        totalItemsInCart: cart.totalItemsInCart
+    });
 };
 
-// 1. Get User Cart
 export const getCart = async (req, res) => {
     try {
-        const cart = await Cart.findOne({ userId: req.user.id }).populate('products.productId');
+        let cart = await Cart.findOne({ userId: req.user.id }).populate('products.productId');
+
         if (!cart) {
-            return res.status(404).json({ success: false, message: 'Cart not found' });
+            return res.status(200).json({
+                success: true,
+                cart: [],
+                totalPrice: 0,
+                totalItemsInCart: 0,
+            });
         }
-        res.status(200).json({ success: true, cart });
+
+        const formattedItems = formatCartItems(cart.products);
+
+        return res.status(200).json({
+            success: true,
+            cart: formattedItems,
+            totalPrice: cart.totalPrice || 0,
+            totalItemsInCart: cart.totalItemsInCart || 0,
+        });
     } catch (error) {
         CartErrorLogger.error(`Error fetching cart: ${error.message}`);
-        res.status(500).json({ success: false, message: 'Server error' });
+        return res.status(500).json({ success: false, message: 'Server error' });
     }
 };
 
-// 2. Add to Cart
 export const addToCart = async (req, res) => {
     try {
         const { productId, quantity, price } = req.body;
@@ -46,13 +89,18 @@ export const addToCart = async (req, res) => {
         }
 
         const existingProductIndex = cart.products.findIndex(
-            p => p.productId.toString() === productId
+            p => p.productId && p.productId.toString() === productId
         );
 
         if (existingProductIndex > -1) {
             cart.products[existingProductIndex].quantity += (quantity || 1);
         } else {
-            cart.products.push({ productId, quantity: quantity || 1, priceAtAdd: price });
+            cart.products.push({ 
+                // המרה אקטיבית לאובייקט כדי למנוע שמירה כטקסט
+                productId: new mongoose.Types.ObjectId(productId), 
+                quantity: quantity || 1, 
+                priceAtAdd: price 
+            });
         }
 
         await updateCartAndRespond(cart, res, 'Product added to cart');
@@ -62,15 +110,14 @@ export const addToCart = async (req, res) => {
     }
 };
 
-// 3. Update Quantity (Unified Logic for inc/dec)
 export const updateQuantity = async (req, res) => {
     try {
-        const { productId, action } = req.body; // action: 'inc' or 'dec'
+        const { productId, action } = req.body; 
         const cart = await Cart.findOne({ userId: req.user.id });
 
         if (!cart) return res.status(404).json({ success: false, message: 'Cart not found' });
 
-        const item = cart.products.find(p => p.productId.toString() === productId);
+        const item = cart.products.find(p => p.productId && p.productId.toString() === productId);
         if (!item) return res.status(404).json({ success: false, message: 'Product not in cart' });
 
         if (action === 'inc') {
@@ -79,8 +126,7 @@ export const updateQuantity = async (req, res) => {
             if (item.quantity > 1) {
                 item.quantity -= 1;
             } else {
-                // If quantity is 1 and we decrement, we remove it
-                cart.products = cart.products.filter(p => p.productId.toString() !== productId);
+                cart.products = cart.products.filter(p => p.productId && p.productId.toString() !== productId);
             }
         }
 
@@ -91,7 +137,6 @@ export const updateQuantity = async (req, res) => {
     }
 };
 
-// 4. Remove Item
 export const removeItem = async (req, res) => {
     try {
         const { productId } = req.params;
@@ -99,7 +144,7 @@ export const removeItem = async (req, res) => {
 
         if (!cart) return res.status(404).json({ success: false, message: 'Cart not found' });
 
-        cart.products = cart.products.filter(p => p.productId.toString() !== productId);
+        cart.products = cart.products.filter(p => p.productId && p.productId.toString() !== productId);
 
         await updateCartAndRespond(cart, res, 'Item removed from cart');
     } catch (error) {
@@ -108,7 +153,6 @@ export const removeItem = async (req, res) => {
     }
 };
 
-// 5. Reset/Clear Cart
 export const resetCart = async (req, res) => {
     try {
         const cart = await Cart.findOne({ userId: req.user.id });
@@ -127,23 +171,32 @@ export const resetCart = async (req, res) => {
     }
 };
 
-// 6. Sync (updateInAddToCart)
 export const updateInAddToCart = async (req, res) => {
     try {
-        const { localProducts } = req.body; // Array of products from localStorage
+        const { localProducts } = req.body; 
         let cart = await Cart.findOne({ userId: req.user.id });
 
         if (!cart) {
             cart = new Cart({ userId: req.user.id, products: [] });
         }
 
-        // Logic to merge local storage items into DB cart
         localProducts.forEach(localItem => {
-            const existing = cart.products.find(p => p.productId.toString() === localItem.productId);
+            const prodId = localItem.productId || localItem._id;
+            const cartQty = localItem.itemQuantity || 1;
+
+            if (!prodId) return;
+
+            const existing = cart.products.find(p => p.productId && p.productId.toString() === prodId.toString());
+            
             if (existing) {
-                existing.quantity += localItem.quantity;
+                existing.quantity += cartQty;
             } else {
-                cart.products.push(localItem);
+                cart.products.push({
+                    // שמירה תקינה של אובייקט במקרה של סינכרון
+                    productId: new mongoose.Types.ObjectId(prodId),
+                    quantity: cartQty,
+                    priceAtAdd: localItem.price || 0 
+                });
             }
         });
 

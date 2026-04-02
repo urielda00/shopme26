@@ -1,26 +1,40 @@
 import express from 'express';
-import * as productController from '../controllers/productController.js';
+import * as productController from '../controllers/ProductController.js';
+import { checkJWT } from '../middleware/jwt.js';
+import { requireAdmin } from '../middleware/requireAdmin.js';
+import { multipleUpload } from '../middleware/upload.js';
+import { createProductValidation, validate } from '../middleware/express-validator.js';
 
 const router = express.Router();
 
-/**
- * Root routes for /api/products
- */
-router.route('/')
-    .get(productController.getAllProducts)    // Fetch all with filters, search, and pagination
-    .post(productController.createProduct);   // Create a new product
-
-/**
- * Individual product routes by ID
- */
-router.route('/:id')
-    .get(productController.getProductById)    // Get single product details
-    .patch(productController.updateProduct)   // Update product fields
-    .delete(productController.deleteProduct); // Remove product
-
-/**
- * Utility route for checking existence (e.g., during creation)
- */
+router.get('/readProducts', productController.getAllProducts);
+router.get('/related', productController.getRelatedProducts);
 router.get('/check-exists/:field/:value', productController.checkProductExists);
+router.get('/:id', productController.getProductById);
+
+router.post(
+    '/',
+    checkJWT,
+    requireAdmin,
+    multipleUpload,
+    createProductValidation,
+    validate,
+    productController.createProduct
+);
+
+router.patch(
+    '/:id',
+    checkJWT,
+    requireAdmin,
+    multipleUpload,
+    productController.updateProduct
+);
+
+router.delete(
+    '/:id',
+    checkJWT,
+    requireAdmin,
+    productController.deleteProduct
+);
 
 export default router;

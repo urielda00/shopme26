@@ -1,7 +1,5 @@
 import { Route, Routes } from 'react-router-dom';
 import { Suspense, lazy } from 'react';
-
-// Regular imports for core and frequently accessed pages
 import HomePage from './pages/HomePage';
 import CartPage from './pages/cart/CartPage';
 import LoginPage from './pages/LoginPage';
@@ -10,82 +8,92 @@ import RegisterPage from './pages/RegisterPage';
 import Construction from './components/Construction';
 import NotFoundPage from './pages/NotFound';
 import ProductsPage from './pages/ProductsPage';
+import AdminRoute from './utils/AuthPaths/AdminRoute';
+import UserRoute from './utils/AuthPaths/UserRoute';
+import CreateItem from './pages/AdminPages/CreateItem';
+import Update from './pages/AdminPages/Update';
+import DeleteItem from './pages/AdminPages/DeleteItem';
+import AdminDashboardPage from './pages/AdminPages/AdminDashboardPage';
 
-// Lazy imports for other pages
-// const ProductPage = lazy(() => import('./pages/ProductPage'));
-// const CheckOutPage = lazy(() => import('./pages/CheckOutPage'));
-// const ThankYouPage = lazy(() => import('./pages/ThankYouPage'));
+const ProductPage = lazy(() => import('./pages/ProductPage'));
+const CheckOutPage = lazy(() => import('./pages/CheckoutPage'));
+const ThankYouPage = lazy(() => import('./pages/ThankYouPage'));
 const ResetPassPage = lazy(() => import('./pages/ResetPassPage'));
 const ForgotPassPage = lazy(() => import('./pages/ForgotPassPage'));
-// const UserDashboardPage = lazy(() => import('./pages/UserDashboardPage'));
-
-// Admin Pages
-// const UpdatePage = lazy(() => import('./pages/AdminPages/UpdatePage'));
-// const CreateItemPage = lazy(() => import('./pages/AdminPages/CreateItemPage'));
-// const DeleteItemPage = lazy(() => import('./pages/AdminPages/DeleteItemPage'));
-
-// // Auth guards
-// import UserAuth from './utils/AuthPaths/UserAuth';
-// import AdminAuth from './utils/AuthPaths/AdminAuth';
 
 const Router = () => {
-	return (
-		<Suspense fallback={<div style={{ display: 'flex', justifyContent: 'center', marginTop: '20%' }}>Loading...</div>}>
-			<Routes>
-				<Route path='/' element={<HomePage />} />
-				<Route path='/cart' element={<CartPage />} />
-				<Route path='/login' element={<LoginPage />} />
-				<Route path='/contact' element={<ContactPage />} />
-				<Route path='/resetPass/:id/:token' element={<ResetPassPage />} />
-				<Route path='/forgetPass' element={<ForgotPassPage />} />
-				{/* <Route path='/checkout' element={<CheckOutPage />} /> */}
-				<Route path='/register' element={<RegisterPage />} />
-				{/* <Route path='/thankYou' element={<ThankYouPage />} />
-				
-				<Route path='/product/:productId' element={<ProductPage />} />
-				 */}
+    return (
+        <Suspense fallback={<div style={{ display: 'flex', justifyContent: 'center', marginTop: '20%' }}>Loading...</div>}>
+            <Routes>
+                <Route path='/' element={<HomePage />} />
+                <Route path='/cart' element={<CartPage />} />
+                <Route path='/login' element={<LoginPage />} />
+                <Route path='/contact' element={<ContactPage />} />
+                <Route path='/resetPass/:id/:token' element={<ResetPassPage />} />
+                <Route path='/forgetPass' element={<ForgotPassPage />} />
+                <Route path='/register' element={<RegisterPage />} />
+                <Route path='/product/:productId' element={<ProductPage />} />
+                <Route path='/productsList' element={<ProductsPage />} />
 
-				{/* <Route
-					path='/user'
-					element={
-						<UserAuth>
-							<UserDashboardPage />
-						</UserAuth>
-					}
-				/>
+                <Route 
+                    path='/checkout' 
+                    element={
+                        <UserRoute>
+                            <CheckOutPage />
+                        </UserRoute>
+                    } 
+                />
 
-				<Route
-					path='/createItem'
-					element={
-						<AdminAuth>
-							<CreateItemPage />
-						</AdminAuth>
-					}
-				/>
+                <Route 
+                    path='/thankYou' 
+                    element={
+                        <UserRoute>
+                            <ThankYouPage />
+                        </UserRoute>
+                    } 
+                />
 
-				<Route
-					path='/updateItem'
-					element={
-						<AdminAuth>
-							<UpdatePage />
-						</AdminAuth>
-					}
-				/>
+                <Route
+                    path='/admin/dashboard'
+                    element={
+                        <AdminRoute>
+                            <AdminDashboardPage />
+                        </AdminRoute>
+                    }
+                />
 
-				<Route
-					path='/deleteItem'
-					element={
-						<AdminAuth>
-							<DeleteItemPage />
-						</AdminAuth>
-					}
-				/> */}
-				<Route path="/productsList" element={<ProductsPage />} />
-				<Route path='underConstruction' element={<Construction />} />
-				<Route path='*' element={<NotFoundPage />} />
-			</Routes>
-		</Suspense>
-	);
+                <Route
+                    path='/admin/products/create'
+                    element={
+                        <AdminRoute>
+                            <CreateItem />
+                        </AdminRoute>
+                    }
+                />
+
+                <Route
+                    path='/admin/products/update'
+                    element={
+                        <AdminRoute>
+                            <Update />
+                        </AdminRoute>
+                    }
+                />
+
+                <Route
+                    path='/admin/products/delete'
+                    element={
+                        <AdminRoute>
+                            <DeleteItem />
+                        </AdminRoute>
+                    }
+                />
+
+                <Route path='/underConstruction' element={<Construction />} />
+                <Route path='*' element={<NotFoundPage />} />
+            </Routes>
+        </Suspense>
+    );
 };
 
 export default Router;

@@ -2,7 +2,7 @@ import React from 'react';
 import Stack from '@mui/material/Stack';
 import MuiAlert, { AlertProps } from '@mui/material/Alert';
 import { useAppSelector, useAppDispatch } from '../../app/hooks';
-import { errorLogged } from '../../features/userSlice';
+import { setLoginError } from '../../features/userSlice'; // Changed from errorLogged
 import { authFloatingAlertStyle } from '../../styles/authStyles';
 
 const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(props, ref) {
@@ -11,12 +11,14 @@ const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(props,
 
 const LoginError: React.FC = () => {
     const dispatch = useAppDispatch();
+    // Accessing loginError from the user state
     const { loginError } = useAppSelector((state) => state.user);
 
     React.useEffect(() => {
         if (loginError) {
             const timer = setTimeout(() => {
-                dispatch(errorLogged(''));
+                // Using setLoginError with an empty string to clear the message
+                dispatch(setLoginError('')); 
             }, 7000);
 
             return () => clearTimeout(timer);

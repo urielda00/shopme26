@@ -121,7 +121,7 @@ const RegisterForm: React.FC = () => {
 											if (fieldValue.length >= 3 && fieldValue.includes("@")) {
 												try {
 													const res = await axiosInstance.get(`/auth/checkIfExist/${fieldValue}`);
-													return res.data.length === 0 || "Email Already Exist";
+													return !res.data.exists || "Email Already Exist";
 												} catch (err) {
 													return "Error checking email";
 												}
@@ -147,7 +147,7 @@ const RegisterForm: React.FC = () => {
 											if (fieldValue.length >= 4) {
 												try {
 													const res = await axiosInstance.get(`/auth/checkIfExist/${fieldValue}`);
-													return res.data.length === 0 || "User Name Already Exist";
+													return !res.data.exists || "User Name Already Exist";
 												} catch (err) {
 													return "Error checking username";
 												}

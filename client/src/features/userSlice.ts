@@ -1,51 +1,72 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { InitialUserState } from '../interfaces/state.interface';
+import { RootState } from '../app/store';
 
-const initialState: InitialUserState = {
+interface AuthUserState {
+    profile: string;
+    user: boolean;
+    userId: string | null;
+    userName: string;
+    isAdmin: boolean;
+    loginError: string | false;
+    initialized: boolean;
+}
+
+interface LoginPayload {
+    userId: string;
+    userName: string;
+    isAdmin: boolean;
+}
+
+const initialState: AuthUserState = {
     profile: '',
     user: false,
-    userId: false,
+    userId: null,
+    userName: '',
     isAdmin: false,
     loginError: false,
+    initialized: false,
 };
 
 const userSlice = createSlice({
     name: 'user',
     initialState,
     reducers: {
-        logged: (state, action: PayloadAction<string | boolean>) => {
+        setAuthUser: (state, action: PayloadAction<LoginPayload>) => {
             state.user = true;
-            state.isAdmin = false;
+            state.userId = action.payload.userId;
+            state.userName = action.payload.userName;
+            state.isAdmin = action.payload.isAdmin;
             state.loginError = false;
-            state.userId = action.payload;
+            state.initialized = true;
         },
 
-        errorLogged: (state, action: PayloadAction<string>) => {
-            state.userId = false;
-            state.loginError = action.payload;
-        },
-
-        loggedOut: (state) => {
-            // Clearing storages and redirecting
-            window.localStorage.clear();
-            window.sessionStorage.clear();
-            
+        clearAuthUser: (state) => {
             state.user = false;
-            state.userId = false;
+            state.userId = null;
+            state.userName = '';
             state.isAdmin = false;
             state.loginError = false;
-            
-            window.location.replace('/login');
+            state.initialized = true;
         },
 
-        isAdmin: (state, action: PayloadAction<string | boolean>) => {
-            state.userId = action.payload;
-            state.user = true;
-            state.isAdmin = true;
-            state.loginError = false;
+        setLoginError: (state, action: PayloadAction<string>) => {
+            state.loginError = action.payload;
+            state.user = false;
+            state.userId = null;
+            state.userName = '';
+            state.isAdmin = false;
+            state.initialized = true;
+        },
+
+        setAuthInitialized: (state, action: PayloadAction<boolean>) => {
+            state.initialized = action.payload;
         },
     },
 });
 
-export const { logged, errorLogged, loggedOut, isAdmin } = userSlice.actions;
+export const { setAuthUser, clearAuthUser, setLoginError, setAuthInitialized } = userSlice.actions;
 export default userSlice.reducer;
+
+// Selectors using the RootState type from your store
+export const selectIsLogged = (state: RootState) => state.user.user;
+export const selectIsAdmin = (state: RootState) => state.user.isAdmin;

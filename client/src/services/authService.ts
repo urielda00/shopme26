@@ -1,29 +1,18 @@
-import axiosInstance from "../utils/axiosInstance";
-import { IFormValues } from "../interfaces/auth.interface";
+import axiosInstance from '../utils/axiosInstance';
+import { IFormValues } from '../interfaces/auth.interface';
 
-/**
- * Register a new user
- * Route: POST /auth/register
- */
 export const registerAPI = async (data: IFormValues) => {
-	// Using the unified axiosInstance with credentials
-	return await axiosInstance.post("/auth/register", data);
+    return await axiosInstance.post('/auth/register', data);
 };
 
-/**
- * Login user
- * Route: POST /auth/login
- */
-export const loginAPI = async (credentials: Pick<IFormValues, "email" | "password">) => {
-	// Server will set the JWT cookie automatically
-	return await axiosInstance.post("/auth/login", credentials);
+export const loginAPI = async (credentials: Pick<IFormValues, 'userName' | 'password'>) => {
+    return await axiosInstance.post('/auth/login', credentials);
 };
 
-/**
- * Logout user
- * Route: POST /auth/logout
- */
 export const logoutAPI = async () => {
-	// Server clears the cookie, we clear local state
-	return await axiosInstance.post("/auth/logout");
+    return await axiosInstance.post('/auth/logout');
+};
+
+export const getMeAPI = async () => {
+    return await axiosInstance.get('/auth/me');
 };

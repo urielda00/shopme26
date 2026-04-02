@@ -48,7 +48,8 @@ const LoginForm: React.FC = () => {
     const togglePasswordVisibility = () => setShowPassword((prev) => !prev);
 
     const onSubmit = async (data: LoginValues) => {
-        await handleLoginSubmit({ email: data.userName, password: data.password } as any);
+        // Send userName directly as the backend expects
+        await handleLoginSubmit({ userName: data.userName, password: data.password });
         reset();
     };
 

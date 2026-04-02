@@ -6,7 +6,7 @@ import { useAppSelector } from "../../app/hooks";
 
 const ShoppingList: FC = () => {
 	const { totalQuantity } = useAppSelector((state) => state.cart);
-
+	console.log("ShoppingList totalQuantity", totalQuantity);
 	return (
 		<Box
 			component={Link}

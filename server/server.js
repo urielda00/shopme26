@@ -48,11 +48,11 @@ app.use(cookieParser());
 app.use('/uploads', express.static('uploads'));
 
 // 4. Routes Integration
-app.use('/auth', userRouter);
-app.use('/product', productRouter);
-app.use('/order', orderRouter);
-app.use('/resetPass', resetPassRouter);
-app.use('/cart', cartRouter);
+app.use('/api/auth', userRouter);
+app.use('/api/product', productRouter);
+app.use('/api/order', orderRouter);
+app.use('/api/resetPass', resetPassRouter);
+app.use('/api/cart', cartRouter);
 
 // 5. Global Error Handling Middleware
 app.use((err, req, res, next) => {
@@ -64,6 +64,17 @@ app.use((err, req, res, next) => {
         success: false,
         message,
         stack: process.env.NODE_ENV === 'production' ? null : err.stack,
+    });
+});
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+    console.error("--- GLOBAL ERROR CAUGHT ---");
+    console.error(err.stack); // זה ידפיס בדיוק באיזו שורה הבעיה
+    console.error("---------------------------");
+    res.status(500).json({
+        success: false,
+        message: err.message || "Internal Server Error"
     });
 });
 

@@ -1,13 +1,21 @@
-import axiosInstance from '../../utils/axiosInstance';
-import { SubmitProps } from '../../interfaces/admin.interface';
+import axiosInstance from '../utils/axiosInstance';
 
-export const createProductAPI = async (formData: SubmitProps) => {
-    return await axiosInstance.post('/product/createProduct', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
+export const createProductAPI = async (formData: FormData) => {
+    return await axiosInstance.post('/product', formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
+    });
+};
+
+export const updateProductAPI = async (id: string, formData: FormData) => {
+    return await axiosInstance.patch(`/product/${id}`, formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
     });
 };
 
 export const deleteProductAPI = async (id: string) => {
-    // Clean return, let the UI handle the success message
-    return await axiosInstance.post('/product/deleteProduct', { id });
+    return await axiosInstance.delete(`/product/${id}`);
 };

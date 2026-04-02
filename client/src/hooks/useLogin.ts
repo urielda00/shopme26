@@ -1,39 +1,81 @@
-// src/hooks/useLogin.ts
-import { useNavigate } from 'react-router-dom';
-import { useAppDispatch } from '../app/hooks';
-import { loginAPI } from '../services/authService';
-import { logged, isAdmin, errorLogged } from '../features/userSlice';
-import { setUserCart } from '../features/cartSlice';
-import { IFormValues } from '../interfaces/auth.interface';
-import { logError } from '../utils/logger';
+import { useNavigate } from "react-router-dom";
+import { useAppDispatch } from "../app/hooks";
+import { loginAPI } from "../services/authService";
+import { setAuthUser, setLoginError } from "../features/userSlice";
+import { setUserCart, resetOnLogOut } from "../features/cartSlice";
+import { getCartAPI } from "../services/cartService";
+import { IFormValues } from "../interfaces/auth.interface";
+import { logError } from "../utils/logger";
 
-type LoginValues = Pick<IFormValues, 'email' | 'password'>;
+type LoginValues = Pick<IFormValues, "userName" | "password">;
 
 const useLogin = () => {
-    const navigate = useNavigate();
-    const dispatch = useAppDispatch();
+	const navigate = useNavigate();
+	const dispatch = useAppDispatch();
 
-    const handleLoginSubmit = async (data: LoginValues) => {
-        try {
-            const response = await loginAPI(data);
-            const { totalPrice, cart, admin, userName, user_id, totalQuantity } = response.data;
+	const handleLoginSubmit = async (data: LoginValues) => {
+		try {
+			const response = await loginAPI(data);
+			console.log("login response", response.data);
+			const {
+				isAdmin,
+				userName,
+				userId,
+				cart = [],
+				totalPrice = 0,
+				totalItemsInCart = 0,
+			} = response.data;
 
-            // Session storage handling
-            window.sessionStorage.setItem('isLogged', 'true');
-            if (admin) window.sessionStorage.setItem('userName', userName);
+			window.sessionStorage.setItem("isLogged", "true");
 
-            // Redux dispatching
-            dispatch(admin ? isAdmin(user_id) : logged(user_id));
-            dispatch(setUserCart({ cart, totalPrice, totalItemsInCart: totalQuantity }));
+			if (isAdmin) {
+				window.sessionStorage.setItem("userName", userName);
+			} else {
+				window.sessionStorage.removeItem("userName");
+			}
 
-            navigate('/');
-        } catch (error: any) {
-            logError(error, 'useLogin - handleLoginSubmit');
-            dispatch(errorLogged(error.message || 'Login failed'));
-        }
-    };
+			dispatch(
+				setAuthUser({
+					userId,
+					userName,
+					isAdmin,
+				}),
+			);
+			console.log("dispatching immediate cart from login", {
+				cart,
+				totalPrice,
+				totalItemsInCart,
+			});
+			console.log("login cart first item full shape", cart?.[0]);
+			console.log(
+				"login cart image fields",
+				cart?.map((item: any) => ({
+					productName: item.productName,
+					image: item.image,
+					imageUrl: item.imageUrl,
+					images: item.images,
+					productImage: item.product?.image,
+					productImages: item.product?.images,
+				})),
+			);
+			// Immediate UI hydration from login response
+			dispatch(
+				setUserCart({
+					cart,
+					totalPrice,
+					totalItemsInCart,
+				}),
+			);
 
-    return { handleLoginSubmit };
+			navigate("/");
+		} catch (error: any) {
+			logError(error, "useLogin - handleLoginSubmit");
+			dispatch(resetOnLogOut());
+			dispatch(setLoginError(error.message || "Login failed"));
+		}
+	};
+
+	return { handleLoginSubmit };
 };
 
 export default useLogin;
