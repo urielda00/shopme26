@@ -5,7 +5,6 @@ import {
 	Button,
 	IconButton,
 	InputAdornment,
-	Stack,
 	TextField,
 	Tooltip,
 	Typography,
@@ -18,8 +17,7 @@ import { passwordRegex } from "../../utils/regexUtils";
 import axiosInstance from "../../utils/axiosInstance";
 
 import PasswordDialog from "./PasswordDialog";
-import RegisterError from "./RegisterError";
-import RegisterSuccess from "./RegisterSuccess";
+import FormFeedback from "../FormFeedback";
 
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
@@ -59,10 +57,19 @@ const RegisterForm: React.FC = () => {
 		handleChangeEyePassword,
 	} = useRegister();
 
+	const serverError = fetchErrors
+		? "Internal Server Error, please try again later"
+		: null;
+
+	const feedbackError =
+		serverError || (passwordErrors?.length ? passwordErrors : null);
+
+	const feedbackSuccess = successFetch
+		? "Registration successful! Welcome aboard!"
+		: null;
+
 	return (
 		<Box sx={authCardStyle}>
-			{successFetch && <RegisterSuccess />}
-
 			<Box sx={authFormInnerStyle}>
 				<Avatar sx={{ ...authHeaderIconStyle, mb: 0.75 }}>
 					<LockOutlinedIcon />
@@ -73,6 +80,8 @@ const RegisterForm: React.FC = () => {
 				</Typography>
 
 				<Box component="form" noValidate sx={{ width: "100%" }} onSubmit={onSubmit}>
+					<FormFeedback error={feedbackError} success={feedbackSuccess} />
+
 					<Grid container spacing={{ xs: 1.5, sm: 2 }}>
 						<Grid size={{ xs: 12, sm: 6 }}>
 							<TextField
@@ -312,12 +321,6 @@ const RegisterForm: React.FC = () => {
 						</Box>
 					</Box>
 				</Box>
-
-				{fetchErrors ? (
-					<RegisterError errors="Internal Server Error, please try again later" />
-				) : (
-					<RegisterError errors={passwordErrors} />
-				)}
 			</Box>
 		</Box>
 	);

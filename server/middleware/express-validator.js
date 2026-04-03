@@ -153,21 +153,23 @@ export const createOrderValidation = [
 
 // RESET PASSWORD VALIDATION
 export const resetPasswordValidation = [
-    check('password')
-        .trim()
-        .notEmpty()
-        .withMessage('New password is required')
-        .isLength({ min: 5 })
-        .withMessage('Password must be at least 5 characters long'),
-    
-    check('confirmPassword')
-        .trim()
-        .notEmpty()
-        .withMessage('Please confirm your new password')
-        .custom((value, { req }) => {
-            if (value !== req.body.password) {
-                throw new Error('Passwords do not match');
-            }
-            return true;
-        }),
+	check('password')
+		.trim()
+		.notEmpty()
+		.withMessage('New password is required')
+		.isLength({ min: 6 })
+		.withMessage('Password must be at least 6 characters long')
+		.matches(/\d/)
+		.withMessage('Password must contain at least one digit'),
+
+	check('confirmPassword')
+		.trim()
+		.notEmpty()
+		.withMessage('Please confirm your new password')
+		.custom((value, { req }) => {
+			if (value !== req.body.password) {
+				throw new Error('Passwords do not match');
+			}
+			return true;
+		}),
 ];

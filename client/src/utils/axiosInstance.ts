@@ -8,6 +8,7 @@ const axiosInstance = axios.create({
 axiosInstance.interceptors.response.use(
     (response) => response,
     (error) => {
+        console.error("RAW SERVER RESPONSE:", error.response?.data);
         // Handle unified error structure: { success, message, errors }
         const serverError = error.response?.data;
         return Promise.reject({

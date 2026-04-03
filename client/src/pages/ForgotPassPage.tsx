@@ -1,6 +1,6 @@
 import { FC } from 'react';
 import { Box } from '@mui/material';
-import ForgotPassForm from '../components/forgotReset/ResetForm';
+import ForgotPassForm from '../components/forgotReset/ForgotPassForm';
 
 const ForgotPassPage: FC = () => {
 	return (

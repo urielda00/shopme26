@@ -15,7 +15,8 @@ import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 
 import useLogin from '../../hooks/useLogin';
-import LoginError from './LoginError';
+import { useAppSelector } from '../../app/hooks';
+import FormFeedback from '../FormFeedback';
 import {
     authCardStyle,
     authFormInnerStyle,
@@ -35,6 +36,7 @@ type LoginValues = Pick<IFormValues, 'userName' | 'password'>;
 
 const LoginForm: React.FC = () => {
     const [showPassword, setShowPassword] = useState(false);
+    const { loginError } = useAppSelector((state) => state.user);
 
     const {
         register,
@@ -48,94 +50,92 @@ const LoginForm: React.FC = () => {
     const togglePasswordVisibility = () => setShowPassword((prev) => !prev);
 
     const onSubmit = async (data: LoginValues) => {
-        // Send userName directly as the backend expects
         await handleLoginSubmit({ userName: data.userName, password: data.password });
         reset();
     };
 
     return (
-        <>
-            <LoginError />
+        <Box sx={authCardStyle}>
+            <Box sx={authFormInnerStyle}>
+                <Avatar sx={authHeaderIconStyle}>
+                    <PersonIcon />
+                </Avatar>
 
-            <Box sx={authCardStyle}>
-                <Box sx={authFormInnerStyle}>
-                    <Avatar sx={authHeaderIconStyle}>
-                        <PersonIcon />
-                    </Avatar>
+                <Typography component='h1' variant='h4' sx={authTitleStyle}>
+                    Sign In
+                </Typography>
 
-                    <Typography component='h1' variant='h4' sx={authTitleStyle}>
-                        Sign In
-                    </Typography>
-                    <Box
-                        component='form'
-                        noValidate
-                        sx={{ width: '100%' }}
-                        onSubmit={handleSubmit(onSubmit)}
-                    >
-                        <Grid container spacing={2}>
-                            <Grid size={12}>
-                                <TextField
-                                    fullWidth
-                                    label='User Name'
-                                    {...register('userName', {
-                                        required: 'User Name is required',
-                                    })}
-                                    error={!!errors.userName}
-                                    helperText={errors.userName?.message}
-                                    sx={authTextFieldStyle}
-                                />
-                            </Grid>
+                <Box
+                    component='form'
+                    noValidate
+                    sx={{ width: '100%' }}
+                    onSubmit={handleSubmit(onSubmit)}
+                >
+                    <FormFeedback error={loginError || null} />
 
-                            <Grid size={12}>
-                                <TextField
-                                    fullWidth
-                                    label='Password'
-                                    type={showPassword ? 'text' : 'password'}
-                                    autoComplete='current-password'
-                                    {...register('password', {
-                                        required: 'Password is required',
-                                    })}
-                                    error={!!errors.password}
-                                    helperText={errors.password?.message}
-                                    sx={authTextFieldStyle}
-                                    InputProps={{
-                                        endAdornment: (
-                                            <InputAdornment position='end'>
-                                                <IconButton onClick={togglePasswordVisibility} edge='end'>
-                                                    {showPassword ? <VisibilityIcon /> : <VisibilityOffIcon />}
-                                                </IconButton>
-                                            </InputAdornment>
-                                        ),
-                                    }}
-                                />
-                            </Grid>
+                    <Grid container spacing={2}>
+                        <Grid size={12}>
+                            <TextField
+                                fullWidth
+                                label='User Name'
+                                {...register('userName', {
+                                    required: 'User Name is required',
+                                })}
+                                error={!!errors.userName}
+                                helperText={errors.userName?.message}
+                                sx={authTextFieldStyle}
+                            />
                         </Grid>
 
-                        <Button
-                            type='submit'
-                            fullWidth
-                            variant='contained'
-                            disabled={!isDirty || !isValid}
-                            sx={authPrimaryButtonStyle}
-                        >
-                            Sign In
-                        </Button>
+                        <Grid size={12}>
+                            <TextField
+                                fullWidth
+                                label='Password'
+                                type={showPassword ? 'text' : 'password'}
+                                autoComplete='current-password'
+                                {...register('password', {
+                                    required: 'Password is required',
+                                })}
+                                error={!!errors.password}
+                                helperText={errors.password?.message}
+                                sx={authTextFieldStyle}
+                                InputProps={{
+                                    endAdornment: (
+                                        <InputAdornment position='end'>
+                                            <IconButton onClick={togglePasswordVisibility} edge='end'>
+                                                {showPassword ? <VisibilityIcon /> : <VisibilityOffIcon />}
+                                            </IconButton>
+                                        </InputAdornment>
+                                    ),
+                                }}
+                            />
+                        </Grid>
+                    </Grid>
 
-                        <Divider sx={{ my: 2.2, opacity: 0.7 }} />
+                    <Button
+                        type='submit'
+                        fullWidth
+                        variant='contained'
+                        disabled={!isDirty || !isValid}
+                        sx={authPrimaryButtonStyle}
+                    >
+                        Sign In
+                    </Button>
 
-                        <Stack
-                            direction={{ xs: 'column', sm: 'row' }}
-                            justifyContent='space-between'
-                            spacing={1.2}
-                            sx={authLinksRowStyle}
-                        >
-                            <Link to='/forgetPass'>Forgot password?</Link>
-                            <Link to='/register'>Don't have an account? Sign Up</Link>
-                        </Stack>
-                    </Box>
+                    <Divider sx={{ my: 2.2, opacity: 0.7 }} />
+
+                    <Stack
+                        direction={{ xs: 'column', sm: 'row' }}
+                        justifyContent='space-between'
+                        spacing={1.2}
+                        sx={authLinksRowStyle}
+                    >
+                        <Link to='/forgot-password'>Forgot password?</Link>
+                        <Link to='/register'>Don't have an account? Sign Up</Link>
+                    </Stack>
                 </Box>
             </Box>
-        </>
+        </Box>
     );
 };
 
