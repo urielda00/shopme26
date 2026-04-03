@@ -15,6 +15,7 @@ import orderRouter from './routes/orderRouter.js';
 import userRouter from './routes/userRouter.js';
 import productRouter from './routes/productRouter.js';
 import resetPassRouter from './routes/resetPassRouter.js';
+import adminRouter from './routes/adminRouter.js'; 
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -53,6 +54,7 @@ app.use('/api/product', productRouter);
 app.use('/api/order', orderRouter);
 app.use('/api/resetPass', resetPassRouter);
 app.use('/api/cart', cartRouter);
+ app.use('/api/admin', adminRouter);
 
 // 5. Global Error Handling Middleware
 app.use((err, req, res, next) => {

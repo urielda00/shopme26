@@ -12,8 +12,11 @@ import AdminRoute from './utils/AuthPaths/AdminRoute';
 import UserRoute from './utils/AuthPaths/UserRoute';
 import CreateItem from './pages/AdminPages/CreateItem';
 import Update from './pages/AdminPages/Update';
-import DeleteItem from './pages/AdminPages/DeleteItem';
 import AdminDashboardPage from './pages/AdminPages/AdminDashboardPage';
+import AdminProductsPage from './pages/AdminPages/AdminProductsPage';
+import AdminUsersPage from './pages/AdminPages/AdminUsersPage';
+import AdminOrdersPage from './pages/AdminPages/AdminOrdersPage';
+import AdminInvoicesPage from './pages/AdminPages/AdminInvoicesPage';
 
 const ProductPage = lazy(() => import('./pages/ProductPage'));
 const CheckOutPage = lazy(() => import('./pages/CheckoutPage'));
@@ -35,22 +38,22 @@ const Router = () => {
                 <Route path='/product/:productId' element={<ProductPage />} />
                 <Route path='/productsList' element={<ProductsPage />} />
 
-                <Route 
-                    path='/checkout' 
+                <Route
+                    path='/checkout'
                     element={
                         <UserRoute>
                             <CheckOutPage />
                         </UserRoute>
-                    } 
+                    }
                 />
 
-                <Route 
-                    path='/thankYou' 
+                <Route
+                    path='/thankYou'
                     element={
                         <UserRoute>
                             <ThankYouPage />
                         </UserRoute>
-                    } 
+                    }
                 />
 
                 <Route
@@ -58,6 +61,42 @@ const Router = () => {
                     element={
                         <AdminRoute>
                             <AdminDashboardPage />
+                        </AdminRoute>
+                    }
+                />
+
+                <Route
+                    path='/admin/products'
+                    element={
+                        <AdminRoute>
+                            <AdminProductsPage />
+                        </AdminRoute>
+                    }
+                />
+
+                <Route
+                    path='/admin/users'
+                    element={
+                        <AdminRoute>
+                            <AdminUsersPage />
+                        </AdminRoute>
+                    }
+                />
+
+                <Route
+                    path='/admin/orders'
+                    element={
+                        <AdminRoute>
+                            <AdminOrdersPage />
+                        </AdminRoute>
+                    }
+                />
+
+                <Route
+                    path='/admin/invoices'
+                    element={
+                        <AdminRoute>
+                            <AdminInvoicesPage />
                         </AdminRoute>
                     }
                 />
@@ -76,15 +115,6 @@ const Router = () => {
                     element={
                         <AdminRoute>
                             <Update />
-                        </AdminRoute>
-                    }
-                />
-
-                <Route
-                    path='/admin/products/delete'
-                    element={
-                        <AdminRoute>
-                            <DeleteItem />
                         </AdminRoute>
                     }
                 />
