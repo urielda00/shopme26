@@ -40,7 +40,6 @@ export const useResetPass = () => {
 				await axiosInstance.get(`/resetPass/reset/${id}/${token}`);
 				setSubmitError("");
 			} catch (error: any) {
-				console.error("Link verification error:", error);
 				const serverMessage = error?.message || "This reset link is invalid or has expired.";
 				setSubmitError(`Server Error: ${serverMessage}`);
 			} finally {
