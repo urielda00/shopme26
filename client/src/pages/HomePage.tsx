@@ -3,7 +3,7 @@ import { Box, CircularProgress } from '@mui/material';
 import { motion, Variants } from 'framer-motion';
 import HeroSection from '../components/home/HeroSection';
 
-const MotionBox = motion(Box);
+const MotionBox = motion.create(Box);
 const OffersSection = lazy(() => import('../components/home/OffersSection'));
 const FeaturedCarousel = lazy(() => import('../components/home/FeaturedCarousel'));
 

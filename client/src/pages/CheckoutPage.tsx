@@ -18,6 +18,7 @@ import CartStep from "../components/checkout/CartStep";
 import Delivery from "../components/checkout/Delivery";
 import Purchase from "../components/checkout/Purchase";
 import { commonContainerSx } from "../styles/common.styles";
+import { useTitle } from "../hooks/useTitle";
 
 const formatPrice = (value: number) =>
 	new Intl.NumberFormat("en-US", {
@@ -53,7 +54,7 @@ const CheckoutPage: FC = () => {
 	};
 
 	const isLastStep = activeStep === steps.length - 1;
-
+	useTitle('Checkout');
 	return (
 		<Box
 			sx={[

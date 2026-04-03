@@ -1,6 +1,6 @@
-import img1 from '../../assets/Home/5nd/Img1.jpg';
-import img2 from '../../assets/Home/5nd/Img2.jpg';
-import img3 from '../../assets/Home/5nd/Img3.jpg';
+import img1 from '../../assets/Home/5nd/Img1.webp';
+import img2 from '../../assets/Home/5nd/Img2.webp';
+import img3 from '../../assets/Home/5nd/Img3.webp';
 
 export interface ICarouselItem {
     img: string;

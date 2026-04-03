@@ -2,8 +2,9 @@ import * as React from 'react';
 import { Button } from '@mui/material';
 import { Link } from 'react-router-dom';
 import * as style from '../styles/notFoundStyles';
-
+import { useTitle } from '../hooks/useTitle';
 const NotFound: React.FC = () => {
+	useTitle('NotFound');
 	return (
 		<div style={style.Container}>
 			<div style={style.InsideDiv}>

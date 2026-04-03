@@ -80,6 +80,7 @@ const RelatedProducts = ({ category, currentProductId }: RelatedProductsProps) =
 						>
 							<Box
 								component="img"
+								loading="lazy"
 								src={getImageUrl(item.images?.[0])}
 								alt={item.productName}
 								onError={(e: SyntheticEvent<HTMLImageElement>) => {

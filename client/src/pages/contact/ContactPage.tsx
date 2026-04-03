@@ -1,11 +1,11 @@
-import { FC } from "react";
+import { FC, use } from "react";
 import { Box, Typography } from "@mui/material";
 import { motion } from "framer-motion";
 import ContactFormFields from "./ContactFormFields";
 import { IContactField } from "../../interfaces/contact.interface";
+import { useTitle } from "../../hooks/useTitle";
 
-const MotionBox = motion(Box);
-
+const MotionBox = motion.create(Box);
 const contactFields: IContactField[] = [
 	{ id: "email", name: "email", label: "Email Address", autoComplete: "email", type: "email" },
 	{ id: "phone", name: "phone", label: "Phone Number", autoComplete: "phone", type: "tel" },
@@ -23,7 +23,7 @@ const contactFields: IContactField[] = [
 const ContactPage: FC = () => {
 	const mailLink = import.meta.env.VITE_MAIL_LINK;
 	const thankYouLink = `${import.meta.env.VITE_FRONT_URL}/thankYou`;
-
+	useTitle('Contact');
 	return (
     <Box
     sx={{

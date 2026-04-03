@@ -100,6 +100,7 @@ const ProductListItem = ({ product }: ProductListItemProps) => {
 					{imageSrc ? (
 						<Box
 							component="img"
+							loading="lazy"
 							src={imageSrc}
 							alt={product.productName}
 							onError={() => setImageFailed(true)}

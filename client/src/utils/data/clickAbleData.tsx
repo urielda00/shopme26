@@ -1,7 +1,7 @@
-import img1 from '../../assets/Home/6nd/buds2.jpg';
-import img2 from '../../assets/Home/6nd/flip4.jpg';
-import img3 from '../../assets/Home/6nd/watch5.jpg';
-import img4 from '../../assets/Home/6nd/zFold.jpg';
+import img1 from '../../assets/Home/6nd/buds2.webp';
+import img2 from '../../assets/Home/6nd/flip4.webp';
+import img3 from '../../assets/Home/6nd/watch5.webp';
+import img4 from '../../assets/Home/6nd/zFold.webp';
 
 interface IClickableData {
     to: string;

@@ -2,7 +2,7 @@ import { FC } from 'react';
 import { Box, Typography, Button } from '@mui/material';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import backHero from '../../assets/Home/background.jpg';
+import backHero from '../../assets/Home/background.webp';
 
 const HeroSection: FC = () => {
     return (

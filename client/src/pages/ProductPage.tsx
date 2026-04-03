@@ -6,11 +6,12 @@ import ProductInfo from "../components/product/ProductInfo";
 import RelatedProducts from "../components/product/RelatedProducts";
 import ProductPageSkeleton from "../components/product/ProductPageSkeleton";
 import { useProduct } from "../services/products/useProduct";
+import { useTitle } from "../hooks/useTitle";
 
 const ProductPage = () => {
 	const { productId } = useParams();
 	const { data: product, isLoading, isError, error } = useProduct(productId);
-
+	useTitle(product ? product.productName : "Loading Product...");
 	const normalizedImages = useMemo(() => {
 		if (!product?.images?.length) return [];
 		return product.images.filter(Boolean);

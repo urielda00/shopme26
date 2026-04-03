@@ -31,85 +31,79 @@ const CartItem: FC<Props> = ({ item, onIncrement, onDecrement, onRemove }) => {
   const itemQuantity = typeof item.itemQuantity === 'number' ? item.itemQuantity : 1;
 
   const hasValidPrice = !Number.isNaN(price);
-  const lineTotal = hasValidPrice ? price * itemQuantity : NaN;
+  const formattedPrice = hasValidPrice ? `$${price.toFixed(2)}` : 'N/A';
+  const totalItemPrice = hasValidPrice ? `$${(price * itemQuantity).toFixed(2)}` : 'N/A';
 
   return (
     <Box sx={cartItemSx}>
-      {!hideImage && imageUrl ? (
-        <Box
-          component="img"
-          src={imageUrl}
-          alt={item.productName}
-          onError={() => {
-            setHideImage(true);
-          }}
-          sx={{
-            width: { xs: 70, sm: 100 },
-            height: { xs: 70, sm: 100 },
-            borderRadius: { xs: 2, sm: 3 },
-            objectFit: 'cover',
-            bgcolor: '#f5f5f7',
-            mr: { xs: 1.5, sm: 3 },
-            flexShrink: 0,
-            border: '1px solid rgba(0,0,0,0.06)',
-          }}
-        />
-      ) : (
-        <Box
-          sx={{
-            width: { xs: 70, sm: 100 },
-            height: { xs: 70, sm: 100 },
-            borderRadius: { xs: 2, sm: 3 },
-            bgcolor: 'rgba(255,255,255,0.7)',
-            mr: { xs: 1.5, sm: 3 },
-            flexShrink: 0,
-            border: '1px solid rgba(0,0,0,0.06)',
-            display: 'grid',
-            placeItems: 'center',
-          }}
-        >
-          <Typography variant="caption" color="text.secondary">
-            ITEM
-          </Typography>
-        </Box>
-      )}
-
       <Box
         sx={{
-          flexGrow: 1,
+          width: { xs: 70, sm: 100 },
+          height: { xs: 70, sm: 100 },
+          borderRadius: 2,
+          bgcolor: 'rgba(255,255,255,0.6)',
           display: 'flex',
-          flexDirection: 'column',
+          alignItems: 'center',
           justifyContent: 'center',
-          minWidth: 0,
-          pr: 1,
+          flexShrink: 0,
+          overflow: 'hidden',
+          border: '1px solid rgba(0,0,0,0.05)',
         }}
       >
+        {!hideImage && imageUrl ? (
+          <Box
+            component="img"
+            src={imageUrl}
+            alt={item.productName || 'Product'}
+            loading="lazy"
+            onError={() => setHideImage(true)}
+            sx={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'contain',
+              p: 1,
+            }}
+          />
+        ) : (
+          <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+            No image
+          </Typography>
+        )}
+      </Box>
+
+      <Box sx={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 0.5,ml:1 }}>
         <Typography
           variant="subtitle1"
-          fontWeight={600}
-          color="#1d1d1f"
           sx={{
-            fontSize: { xs: '0.9rem', sm: '1.1rem' },
-            lineHeight: 1.2,
-            mb: 0.5,
+            fontWeight: 600,
+            color: '#1d1d1f',
+            fontSize: { xs: '0.95rem', sm: '1.1rem' },
             whiteSpace: 'nowrap',
             overflow: 'hidden',
             textOverflow: 'ellipsis',
           }}
         >
-          {item.productName || 'Unnamed product'}
+          {item.productName}
         </Typography>
 
-        <Typography
-          variant="body2"
-          color="#86868b"
-          fontWeight={500}
-          sx={{ mb: 1.5, fontSize: { xs: '0.8rem', sm: '0.875rem' } }}
-        >
-          {hasValidPrice ? `$${price.toFixed(2)}` : 'Price unavailable'}
+        <Typography variant="body2" sx={{ color: '#86868b', fontSize: { xs: '0.8rem', sm: '0.9rem' } }}>
+          {formattedPrice}
         </Typography>
 
-        <Stack direction="row" alignItems="center" spacing={0.5} sx={quantityStackSx}>
+        
+      </Box>
+
+      <Box
+  sx={{
+    display: 'flex',
+    alignItems: 'center',
+    alignSelf: 'flex-end',
+    mb: 0.5,
+    ml: 'auto',
+    mr: -2
+  }}
+>
+        <Stack direction="row" alignItems="center" sx={quantityStackSx}>
           <IconButton
             size="small"
             onClick={onDecrement}
@@ -157,15 +151,8 @@ const CartItem: FC<Props> = ({ item, onIncrement, onDecrement, onRemove }) => {
           size="small"
           sx={{ color: 'rgba(0,0,0,0.3)', p: 0, '&:hover': { color: '#d32f2f' } }}
         >
-          <CloseIcon sx={{ fontSize: { xs: '1.1rem', sm: '1.5rem' } }} />
+          <CloseIcon sx={{ fontSize: { xs: '1.2rem', sm: '1.4rem' } }} />
         </IconButton>
-
-        <Typography
-          fontWeight={700}
-          sx={{ color: '#1d1d1f', fontSize: { xs: '0.95rem', sm: '1.2rem' }, mt: 'auto' }}
-        >
-          {hasValidPrice ? `$${lineTotal.toFixed(2)}` : '--'}
-        </Typography>
       </Box>
     </Box>
   );

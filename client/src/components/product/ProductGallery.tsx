@@ -73,6 +73,7 @@ const ProductGallery = ({
 						>
 							<Box
 								component="img"
+								loading="lazy"
 								src={getImageUrl(image)}
 								alt={`${productName} thumbnail ${index + 1}`}
 								onError={(e: SyntheticEvent<HTMLImageElement>) => {
@@ -124,6 +125,7 @@ const ProductGallery = ({
 				>
 					<Box
 						component="img"
+						loading="lazy"
 						src={getImageUrl(selectedImage)}
 						alt={productName}
 						onError={(e: SyntheticEvent<HTMLImageElement>) => {

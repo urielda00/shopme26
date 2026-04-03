@@ -27,6 +27,7 @@ import {
     IUserOrder,
     IUserProfile,
 } from '../services/userDashboardService';
+import { useTitle } from '../hooks/useTitle';
 
 const glassCardSx = {
     borderRadius: 4,
@@ -58,6 +59,7 @@ const inputSx = {
 };
 
 const UserDashboardPage = () => {
+    useTitle('Dashboard');
     const dispatch = useAppDispatch();
     const { userId } = useAppSelector((state) => state.user);
 

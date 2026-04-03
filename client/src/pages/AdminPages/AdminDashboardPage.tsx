@@ -16,7 +16,7 @@ import TrendingUpRoundedIcon from '@mui/icons-material/TrendingUpRounded';
 import WarningAmberRoundedIcon from '@mui/icons-material/WarningAmberRounded';
 import AdminLayout from '../../components/admin/AdminLayout';
 import { getAdminOverviewAPI } from '../../services/adminService';
-
+import { useTitle } from '../../hooks/useTitle';
 const metricCards = (overview: any) => [
     {
         label: 'Products',
@@ -70,6 +70,7 @@ const AdminDashboardPage = () => {
     const [error, setError] = useState('');
     const [overview, setOverview] = useState<any>(null);
 
+    useTitle('Dashboard');
     useEffect(() => {
         const loadOverview = async () => {
             try {

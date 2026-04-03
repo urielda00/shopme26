@@ -2,8 +2,9 @@ import React from 'react';
 import { Box } from '@mui/material';
 import LoginForm from '../components/Login/LoginForm';
 import { authPageBackgroundStyle } from '../styles/authStyles';
-
+import { useTitle } from '../hooks/useTitle';   
 const LoginPage: React.FC = () => {
+	useTitle('Login');
     return (
         <Box
             sx={{

@@ -3,7 +3,7 @@ import { Box, Typography, Card, CardActionArea, CardMedia } from '@mui/material'
 import Grid from '@mui/material/Grid2';
 import { Link } from 'react-router-dom';
 import clickableData from '../../utils/data/clickAbleData';
-import bigPhoto from '../../assets/Home/6nd/bigPhoto1.jpg';
+import bigPhoto from '../../assets/Home/6nd/bigPhoto1.webp';
 
 const OffersSection: FC = () => {
     return (

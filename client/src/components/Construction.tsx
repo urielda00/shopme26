@@ -27,6 +27,7 @@ const Construction: FC = () => {
             >
                 <Box
                     component="img"
+                    loading="lazy"
                     src={backImg}
                     alt="Under construction"
                     sx={{

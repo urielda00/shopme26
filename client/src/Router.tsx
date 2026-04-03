@@ -1,43 +1,46 @@
 import { Route, Routes } from 'react-router-dom';
 import { Suspense, lazy } from 'react';
 import HomePage from './pages/HomePage';
-import CartPage from './pages/cart/CartPage';
-import LoginPage from './pages/LoginPage';
-import ContactPage from './pages/contact/ContactPage';
-import RegisterPage from './pages/RegisterPage';
-import Construction from './components/Construction';
-import NotFoundPage from './pages/NotFound';
-import ProductsPage from './pages/ProductsPage';
 import AdminRoute from './utils/AuthPaths/AdminRoute';
 import UserRoute from './utils/AuthPaths/UserRoute';
-import CreateItem from './pages/AdminPages/CreateItem';
-import Update from './pages/AdminPages/Update';
-import AdminDashboardPage from './pages/AdminPages/AdminDashboardPage';
-import AdminProductsPage from './pages/AdminPages/AdminProductsPage';
-import AdminUsersPage from './pages/AdminPages/AdminUsersPage';
-import AdminOrdersPage from './pages/AdminPages/AdminOrdersPage';
-import AdminInvoicesPage from './pages/AdminPages/AdminInvoicesPage';
-import UserDashboardPage from './pages/UserDashboardPage';
+import Construction from './components/Construction';
+import NotFoundPage from './pages/NotFound';
 
+// Lazy load user pages
 const ProductPage = lazy(() => import('./pages/ProductPage'));
 const CheckOutPage = lazy(() => import('./pages/CheckoutPage'));
 const ThankYouPage = lazy(() => import('./pages/ThankYouPage'));
 const ResetPassPage = lazy(() => import('./pages/ResetPassPage'));
 const ForgotPassPage = lazy(() => import('./pages/ForgotPassPage'));
+const CartPage = lazy(() => import('./pages/cart/CartPage'));
+const LoginPage = lazy(() => import('./pages/LoginPage'));
+const ContactPage = lazy(() => import('./pages/contact/ContactPage'));
+const RegisterPage = lazy(() => import('./pages/RegisterPage'));
+const ProductsPage = lazy(() => import('./pages/ProductsPage'));
+const UserDashboardPage = lazy(() => import('./pages/UserDashboardPage'));
+
+// Lazy load admin pages
+const CreateItem = lazy(() => import('./pages/AdminPages/CreateItem'));
+const Update = lazy(() => import('./pages/AdminPages/Update'));
+const AdminDashboardPage = lazy(() => import('./pages/AdminPages/AdminDashboardPage'));
+const AdminProductsPage = lazy(() => import('./pages/AdminPages/AdminProductsPage'));
+const AdminUsersPage = lazy(() => import('./pages/AdminPages/AdminUsersPage'));
+const AdminOrdersPage = lazy(() => import('./pages/AdminPages/AdminOrdersPage'));
+const AdminInvoicesPage = lazy(() => import('./pages/AdminPages/AdminInvoicesPage'));
 
 const Router = () => {
     return (
-        <Suspense fallback={<div style={{ display: 'flex', justifyContent: 'center', marginTop: '20%' }}>Loading...</div>}>
+        <Suspense fallback={null}>
             <Routes>
                 <Route path='/' element={<HomePage />} />
-                <Route path='/cart' element={<CartPage />} />
-                <Route path='/login' element={<LoginPage />} />
-                <Route path='/contact' element={<ContactPage />} />
-                <Route path='/resetPass/:id/:token' element={<ResetPassPage />} />
-                <Route path='/forgetPass' element={<ForgotPassPage />} />
-                <Route path='/register' element={<RegisterPage />} />
                 <Route path='/product/:productId' element={<ProductPage />} />
                 <Route path='/productsList' element={<ProductsPage />} />
+                <Route path='/cart' element={<CartPage />} />
+                <Route path='/login' element={<LoginPage />} />
+                <Route path='/register' element={<RegisterPage />} />
+                <Route path='/contact' element={<ContactPage />} />
+                <Route path='/forgetPass' element={<ForgotPassPage />} />
+                <Route path='/resetPass/reset/:id/:token' element={<ResetPassPage />} />
 
                 <Route
                     path='/checkout'
@@ -47,7 +50,6 @@ const Router = () => {
                         </UserRoute>
                     }
                 />
-
                 <Route
                     path='/thankYou'
                     element={
@@ -56,7 +58,6 @@ const Router = () => {
                         </UserRoute>
                     }
                 />
-
                 <Route
                     path='/user'
                     element={
@@ -74,7 +75,6 @@ const Router = () => {
                         </AdminRoute>
                     }
                 />
-
                 <Route
                     path='/admin/products'
                     element={
@@ -83,7 +83,6 @@ const Router = () => {
                         </AdminRoute>
                     }
                 />
-
                 <Route
                     path='/admin/users'
                     element={
@@ -92,7 +91,6 @@ const Router = () => {
                         </AdminRoute>
                     }
                 />
-
                 <Route
                     path='/admin/orders'
                     element={
@@ -101,7 +99,6 @@ const Router = () => {
                         </AdminRoute>
                     }
                 />
-
                 <Route
                     path='/admin/invoices'
                     element={
@@ -110,7 +107,6 @@ const Router = () => {
                         </AdminRoute>
                     }
                 />
-
                 <Route
                     path='/admin/products/create'
                     element={
@@ -119,7 +115,6 @@ const Router = () => {
                         </AdminRoute>
                     }
                 />
-
                 <Route
                     path='/admin/products/update'
                     element={

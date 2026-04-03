@@ -7,8 +7,9 @@ import {
     registerCardViewportStyle,
     registerCardScrollAreaStyle,
 } from '../styles/authStyles';
-
+import { useTitle } from '../hooks/useTitle';
 const RegisterPage: React.FC = () => {
+	useTitle('Register');
     return (
         <Box sx={authPageBackgroundStyle}>
             <Box sx={authSingleColumnWrapStyle}>
