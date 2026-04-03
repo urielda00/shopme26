@@ -190,7 +190,15 @@ export const resetCart = async (req, res) => {
 
 export const updateInAddToCart = async (req, res) => {
     try {
-        const { localProducts } = req.body; 
+        const { localProducts } = req.body;
+
+        if (!Array.isArray(localProducts)) {
+            return res.status(400).json({
+                success: false,
+                message: "localProducts must be an array",
+            });
+        }
+
         let cart = await Cart.findOne({ userId: req.user.id });
 
         if (!cart) {
@@ -203,23 +211,24 @@ export const updateInAddToCart = async (req, res) => {
 
             if (!prodId) return;
 
-            const existing = cart.products.find(p => p.productId && p.productId.toString() === prodId.toString());
-            
+            const existing = cart.products.find(
+                p => p.productId && p.productId.toString() === prodId.toString()
+            );
+
             if (existing) {
                 existing.quantity += cartQty;
             } else {
                 cart.products.push({
-                    // שמירה תקינה של אובייקט במקרה של סינכרון
                     productId: new mongoose.Types.ObjectId(prodId),
                     quantity: cartQty,
-                    priceAtAdd: localItem.price || 0 
+                    priceAtAdd: localItem.price || 0,
                 });
             }
         });
 
-        await updateCartAndRespond(cart, res, 'Cart synced with local storage');
+        await updateCartAndRespond(cart, res, "Cart synced with local storage");
     } catch (error) {
         CartErrorLogger.error(`Sync failed: ${error.message}`);
-        res.status(500).json({ success: false, message: 'Sync error' });
+        res.status(500).json({ success: false, message: "Sync error" });
     }
 };

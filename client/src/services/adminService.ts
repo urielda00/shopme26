@@ -1,5 +1,15 @@
 import axiosInstance from '../utils/axiosInstance';
 
+export const searchProductsAPI = async (key: string) => {
+    return await axiosInstance.get('/product/searchProduct', {
+        params: { key },
+    });
+};
+
+export const getProductByIdAPI = async (id: string) => {
+    return await axiosInstance.get(`/product/${id}`);
+};
+
 export const createProductAPI = async (formData: FormData) => {
     return await axiosInstance.post('/product', formData, {
         headers: {

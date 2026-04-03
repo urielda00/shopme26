@@ -27,7 +27,7 @@ const RenderBtn = ({
                 type='submit'
                 fullWidth
                 variant='contained'
-                disabled={!isValid || submitting}
+                disabled={submitting}
                 sx={{
                     mt: 3,
                     minHeight: '54px',
@@ -53,7 +53,7 @@ const RenderBtn = ({
             fullWidth
             variant='contained'
             onClick={nextStep}
-            disabled={!isDirty || !isValid}
+            disabled={submitting}
             sx={{
                 mt: 3,
                 minHeight: '54px',

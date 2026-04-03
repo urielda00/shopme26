@@ -16,15 +16,36 @@ const useCreateUpdate = ({ isUpdate }: UseCreateUpdateProps) => {
     const [image3, setImage3] = useState<File | null>(null);
     const [image4, setImage4] = useState<File | null>(null);
 
-    const nextStep = () => setStep((prev) => prev + 1);
-    const prevStep = () => setStep((prev) => prev - 1);
+    const form = useForm<types.IBothFormValues>({
+        mode: 'onChange',
+        reValidateMode: 'onChange',
+    });
 
-    // Changed mode to 'onBlur' to optimize async validation calls
-    const form = useForm<types.IBothFormValues>({ mode: 'onBlur' });
-    const { register, handleSubmit, formState, watch, reset } = form;
-    
-    // Added isValidating to the destructuring
+    const { register, handleSubmit, formState, watch, reset, trigger, setValue } = form;
     const { errors, isValid, isDirty, isValidating } = formState;
+
+    const nextStep = async () => {
+        let fieldsToValidate: string[] = [];
+
+        if (step === 1) {
+            fieldsToValidate = ['productName', 'shortDescription', 'longDescription'];
+        }
+
+        if (step === 2) {
+            fieldsToValidate = ['quantity', 'releaseYear', 'price'];
+        }
+
+        if (step === 3) {
+            fieldsToValidate = ['company', 'os', 'brand', 'category'];
+        }
+
+        const valid = await trigger(fieldsToValidate as any);
+        if (!valid) return;
+
+        setStep((prev) => prev + 1);
+    };
+
+    const prevStep = () => setStep((prev) => prev - 1);
 
     const isImage1 = watch('image1');
     const isImage2 = watch('image2');
@@ -55,14 +76,21 @@ const useCreateUpdate = ({ isUpdate }: UseCreateUpdateProps) => {
         }
     };
 
+    const clearLocalImages = () => {
+        setImage1(null);
+        setImage2(null);
+        setImage3(null);
+        setImage4(null);
+    };
+
     const buildFormData = (data: types.IBothFormValues) => {
         const formData = new FormData();
 
         if (data.productName) formData.append('productName', data.productName);
         if (data.shortDescription) formData.append('shortDescription', data.shortDescription);
         if (data.longDescription) formData.append('longDescription', data.longDescription);
-        if (data.quantity) formData.append('quantity', String(data.quantity));
-        if (data.releaseYear) formData.append('releaseYear', String(data.releaseYear));
+        if (data.quantity !== undefined) formData.append('quantity', String(data.quantity));
+        if (data.releaseYear !== undefined) formData.append('releaseYear', String(data.releaseYear));
         if (data.brand) formData.append('brand', data.brand);
         if (data.category) formData.append('category', data.category);
         if (data.company) formData.append('company', data.company);
@@ -87,7 +115,7 @@ const useCreateUpdate = ({ isUpdate }: UseCreateUpdateProps) => {
 
             if (isUpdate) {
                 if (!data.productID) {
-                    throw new Error('Product ID is required for update');
+                    throw new Error('Please select a product to update');
                 }
 
                 await updateProductAPI(data.productID, formData);
@@ -97,12 +125,14 @@ const useCreateUpdate = ({ isUpdate }: UseCreateUpdateProps) => {
 
             setStep(5);
             reset();
-            setImage1(null);
-            setImage2(null);
-            setImage3(null);
-            setImage4(null);
+            clearLocalImages();
         } catch (error: any) {
-            setSubmitError(error.message || 'Failed to save product');
+            const message =
+                error?.response?.data?.message ||
+                error?.message ||
+                'Failed to save product';
+
+            setSubmitError(message);
         } finally {
             setSubmitting(false);
         }
@@ -112,26 +142,14 @@ const useCreateUpdate = ({ isUpdate }: UseCreateUpdateProps) => {
         step,
         form,
         watch,
-        image1,
-        image2,
-        image3,
-        image4,
         errors,
         setStep,
         isValid,
         isDirty,
-        isValidating, // Now returned to the component
-        isImage1,
-        isImage2,
-        isImage3,
-        isImage4,
+        isValidating,
         register,
         nextStep,
         prevStep,
-        setImage1,
-        setImage2,
-        setImage3,
-        setImage4,
         formState,
         onSubmit,
         changeState,
@@ -142,6 +160,9 @@ const useCreateUpdate = ({ isUpdate }: UseCreateUpdateProps) => {
         image4Length,
         submitting,
         submitError,
+        reset,
+        setValue,
+        clearLocalImages,
     };
 };
 
