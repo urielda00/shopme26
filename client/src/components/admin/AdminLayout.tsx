@@ -180,14 +180,7 @@ const AdminLayout = ({ title, subtitle, primaryAction, children }: AdminLayoutPr
 
                         <Divider />
 
-                        <Box sx={{ mt: 'auto' }}>
-                            <Typography sx={{ color: 'rgba(17,24,39,0.52)', fontSize: '0.88rem', mb: 1 }}>
-                                Current section
-                            </Typography>
-                            <Typography sx={{ color: '#111827', fontWeight: 600 }}>
-                                {activeItem?.label || 'Overview'}
-                            </Typography>
-                        </Box>
+                       
                     </Stack>
                 </Box>
 
