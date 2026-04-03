@@ -5,7 +5,6 @@ import { setAuthUser, setLoginError } from "../features/userSlice";
 import { setUserCart, resetOnLogOut, clearCart } from "../features/cartSlice";
 import { syncCartAPI } from "../services/cartService";
 import { IFormValues } from "../interfaces/auth.interface";
-import { logError } from "../utils/logger";
 
 type LoginValues = Pick<IFormValues, "userName" | "password">;
 
@@ -19,7 +18,6 @@ const useLogin = () => {
       const guestCartSnapshot = [...localCartItems];
 
       const response = await loginAPI(data);
-      console.log("login response", response.data);
 
       const {
         isAdmin,
@@ -47,12 +45,7 @@ const useLogin = () => {
       );
 
       if (guestCartSnapshot.length > 0) {
-        console.log("syncing guest cart into user cart", guestCartSnapshot);
-
         const syncResponse = await syncCartAPI(guestCartSnapshot);
-
-        console.log("sync response", syncResponse.data);
-
         dispatch(
           setUserCart({
             cart: syncResponse.data.cart || [],
@@ -72,7 +65,6 @@ const useLogin = () => {
 
       navigate("/");
     } catch (error: any) {
-      logError(error, "useLogin - handleLoginSubmit");
       dispatch(resetOnLogOut());
       dispatch(setLoginError(error.message || "Login failed"));
     }

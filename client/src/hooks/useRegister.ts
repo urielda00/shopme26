@@ -3,7 +3,6 @@ import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { registerAPI } from '../services/authService';
 import { IFormValues } from '../interfaces/auth.interface';
-import { logError } from '../utils/logger';
 
 const useRegister = () => {
     const [passwordEye, setPasswordEye] = useState(false);
@@ -35,7 +34,6 @@ const useRegister = () => {
                 navigate('/login');
             }, 2000);
         } catch (error: any) {
-            logError(error, 'useRegister - onSubmit');
             setFetchErrors(error.message);
         }
     };

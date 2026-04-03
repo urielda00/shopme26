@@ -111,9 +111,6 @@ export const cartSlice = createSlice({
 			state,
 			action: PayloadAction<{ cart: ICartItem[]; totalItemsInCart: number; totalPrice: number }>,
 		) => {
-			console.log("setUserCart payload", action.payload);
-			console.log("setUserCart first cart item", action.payload.cart?.[0]);
-
 			state.items = action.payload.cart;
 			state.totalQuantity = action.payload.totalItemsInCart;
 			state.totalPrice = action.payload.totalPrice;
@@ -177,7 +174,6 @@ export const cartSlice = createSlice({
 			})
 
 			.addCase(addToCartThunk.rejected, (state, action) => {
-				console.error("Add to cart failed:", action.payload);
 				state.error = action.payload as string;
 			})
 

@@ -69,16 +69,6 @@ app.use((err, req, res, next) => {
     });
 });
 
-// Error handling middleware
-app.use((err, req, res, next) => {
-    console.error("--- GLOBAL ERROR CAUGHT ---");
-    console.error(err.stack); // זה ידפיס בדיוק באיזו שורה הבעיה
-    console.error("---------------------------");
-    res.status(500).json({
-        success: false,
-        message: err.message || "Internal Server Error"
-    });
-});
 
 // 6. Database Connection logic
 const connectDB = async () => {

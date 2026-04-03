@@ -33,14 +33,6 @@ const CartItem: FC<Props> = ({ item, onIncrement, onDecrement, onRemove }) => {
   const hasValidPrice = !Number.isNaN(price);
   const lineTotal = hasValidPrice ? price * itemQuantity : NaN;
 
-  console.log('CartItem image debug', {
-    productName: item.productName,
-    rawImage: item.image,
-    normalizedImage,
-    imageUrl,
-    hideImage,
-  });
-
   return (
     <Box sx={cartItemSx}>
       {!hideImage && imageUrl ? (
@@ -49,11 +41,6 @@ const CartItem: FC<Props> = ({ item, onIncrement, onDecrement, onRemove }) => {
           src={imageUrl}
           alt={item.productName}
           onError={() => {
-            console.log('CartItem image failed', {
-              productName: item.productName,
-              rawImage: item.image,
-              imageUrl,
-            });
             setHideImage(true);
           }}
           sx={{

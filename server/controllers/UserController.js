@@ -54,9 +54,7 @@ const getCookieConfig = () => ({
 export const register = async (req, res, next) => {
 	try {
 		const { firstName, lastName, userName, email, password, phoneNumber, avatar } = req.body;
-		console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
 		const existingUser = await User.findOne({ $or: [{ email }, { userName }] });
-		console.log("Existing user found:", existingUser);
 		if (existingUser) {
 			return res.status(409).json({
 				success: false,
@@ -157,19 +155,16 @@ export const logout = async (req, res, next) => {
 
 export const getMe = async (req, res, next) => {
 	try {
-		console.log("User ID from token:", req.user?.id); // Debug line
 		const user = await User.findById(req.user.id).select("-password");
 
 		if (!user) {
 			return res.status(404).json({ success: false, message: "User not found" });
 		}
 
-		console.log("User found in DB:", user.email); // Debug line
 		const sessionUser = await buildSessionUser(user);
 
 		res.status(200).json({ success: true, ...sessionUser });
 	} catch (error) {
-		console.error("Error in getMe:", error); // This will show you the real error
 		next(error);
 	}
 };
