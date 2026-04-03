@@ -20,7 +20,7 @@ const shopList = [
 ];
 
 const supportList = [
-	{ name: "My account", link: "/underConstruction" },
+	{ name: "My account", link: "/user" },
 	{ name: "FAQ", link: "/underConstruction" },
 	{ name: "Terms", link: "/underConstruction" },
 	{ name: "Privacy Policy", link: "/underConstruction" },

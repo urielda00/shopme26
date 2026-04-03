@@ -17,6 +17,10 @@ interface LoginPayload {
     isAdmin: boolean;
 }
 
+interface UpdateAuthUserPayload {
+    userName?: string;
+}
+
 const initialState: AuthUserState = {
     profile: '',
     user: false,
@@ -61,12 +65,24 @@ const userSlice = createSlice({
         setAuthInitialized: (state, action: PayloadAction<boolean>) => {
             state.initialized = action.payload;
         },
+
+        updateAuthUser: (state, action: PayloadAction<UpdateAuthUserPayload>) => {
+            if (typeof action.payload.userName === 'string') {
+                state.userName = action.payload.userName;
+            }
+        },
     },
 });
 
-export const { setAuthUser, clearAuthUser, setLoginError, setAuthInitialized } = userSlice.actions;
+export const {
+    setAuthUser,
+    clearAuthUser,
+    setLoginError,
+    setAuthInitialized,
+    updateAuthUser,
+} = userSlice.actions;
+
 export default userSlice.reducer;
 
-// Selectors using the RootState type from your store
 export const selectIsLogged = (state: RootState) => state.user.user;
 export const selectIsAdmin = (state: RootState) => state.user.isAdmin;

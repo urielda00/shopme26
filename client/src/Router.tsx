@@ -17,6 +17,7 @@ import AdminProductsPage from './pages/AdminPages/AdminProductsPage';
 import AdminUsersPage from './pages/AdminPages/AdminUsersPage';
 import AdminOrdersPage from './pages/AdminPages/AdminOrdersPage';
 import AdminInvoicesPage from './pages/AdminPages/AdminInvoicesPage';
+import UserDashboardPage from './pages/UserDashboardPage';
 
 const ProductPage = lazy(() => import('./pages/ProductPage'));
 const CheckOutPage = lazy(() => import('./pages/CheckoutPage'));
@@ -52,6 +53,15 @@ const Router = () => {
                     element={
                         <UserRoute>
                             <ThankYouPage />
+                        </UserRoute>
+                    }
+                />
+
+                <Route
+                    path='/user'
+                    element={
+                        <UserRoute>
+                            <UserDashboardPage />
                         </UserRoute>
                     }
                 />

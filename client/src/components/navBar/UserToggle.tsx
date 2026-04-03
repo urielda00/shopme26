@@ -26,7 +26,6 @@ export const UserToggle: FC = () => {
 		try {
 			await logoutAPI();
 		} catch (error) {
-			// Intentionally ignored to allow client cleanup
 		} finally {
 			window.sessionStorage.removeItem("isLogged");
 			window.sessionStorage.removeItem("userName");
@@ -42,7 +41,7 @@ export const UserToggle: FC = () => {
 	const menuPaperStyles = {
 		elevation: 0,
 		sx: {
-			width: 200,
+			width: 220,
 			bgcolor: "rgba(255, 255, 255, 0.72)",
 			backdropFilter: "blur(18px) saturate(150%)",
 			color: "#111827",
@@ -86,7 +85,6 @@ export const UserToggle: FC = () => {
 				anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
 				PaperProps={menuPaperStyles}
 			>
-				{/* Replaced Fragments with arrays to satisfy MUI Menu requirements */}
 				{user
 					? [
 							isAdmin ? (
@@ -96,11 +94,11 @@ export const UserToggle: FC = () => {
 									to="/admin/dashboard"
 									onClick={handleMenuClose}
 								>
-									Dashboard
+									Admin Dashboard
 								</MenuItem>
 							) : null,
 							<MenuItem key="account" component={Link} to="/user" onClick={handleMenuClose}>
-								Account
+								My Account
 							</MenuItem>,
 							<Divider key="divider-1" />,
 							<MenuItem key="logout" onClick={handleLogOut}>
