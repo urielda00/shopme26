@@ -11,6 +11,7 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import AdminLayout from '../../components/admin/AdminLayout';
 import { getAdminInvoicesAPI } from '../../services/adminService';
+import { useDebouncedValue } from '../../hooks/useDebouncedValue';
 
 const panelStyles = {
     p: 3,
@@ -21,11 +22,20 @@ const panelStyles = {
 
 const AdminInvoicesPage = () => {
     const [search, setSearch] = useState('');
+    const debouncedSearch = useDebouncedValue(search, 400);
+    const normalizedSearch = debouncedSearch.trim();
 
-    // Fetch invoices
-    const { data, isLoading, isError, error } = useQuery({
-        queryKey: ['adminInvoices', search],
-        queryFn: () => getAdminInvoicesAPI({ search }),
+    const {
+        data,
+        isLoading,
+        isFetching,
+        isError,
+        error,
+    } = useQuery({
+        queryKey: ['adminInvoices', normalizedSearch],
+        queryFn: () => getAdminInvoicesAPI({ search: normalizedSearch }),
+        placeholderData: (previousData) => previousData,
+        enabled: normalizedSearch.length === 0 || normalizedSearch.length >= 2,
     });
 
     const invoices = data?.data?.items || [];
@@ -53,16 +63,34 @@ const AdminInvoicesPage = () => {
                         <Typography variant="h6" sx={{ fontWeight: 700, color: '#111827' }}>
                             All Invoices
                         </Typography>
-                        <TextField
-                            size="small"
-                            placeholder="Search invoices..."
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                            sx={{ width: { xs: '100%', md: '300px' } }}
-                        />
+
+                        <Box sx={{ width: { xs: '100%', md: '300px' }, position: 'relative' }}>
+                            <TextField
+                                size="small"
+                                placeholder="Search invoices..."
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                                sx={{ width: '100%' }}
+                            />
+                            {isFetching && !isLoading && (
+                                <CircularProgress
+                                    size={16}
+                                    sx={{
+                                        position: 'absolute',
+                                        right: 12,
+                                        top: '50%',
+                                        transform: 'translateY(-50%)',
+                                    }}
+                                />
+                            )}
+                        </Box>
                     </Stack>
 
-                    {isLoading ? (
+                    {normalizedSearch.length === 1 ? (
+                        <Typography sx={{ textAlign: 'center', py: 4, color: 'text.secondary' }}>
+                            Type at least 2 characters to search.
+                        </Typography>
+                    ) : isLoading ? (
                         <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
                             <CircularProgress />
                         </Box>

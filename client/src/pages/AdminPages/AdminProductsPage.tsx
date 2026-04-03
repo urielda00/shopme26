@@ -17,6 +17,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import AdminLayout from '../../components/admin/AdminLayout';
 import { deleteProductAPI, getAdminProductsAPI } from '../../services/adminService';
 import { getImageUrl } from '../../utils/getImageUrl';
+import { useDebouncedValue } from '../../hooks/useDebouncedValue';
 
 const statCardStyles = {
     p: 3,
@@ -28,24 +29,26 @@ const statCardStyles = {
 
 const AdminProductsPage = () => {
     const [search, setSearch] = useState('');
+    const debouncedSearch = useDebouncedValue(search, 400);
+    const normalizedSearch = debouncedSearch.trim();
     const queryClient = useQueryClient();
 
-    // Fetch Products using React Query
-    const { 
-        data, 
-        isLoading, 
-        isError, 
-        error 
+    const {
+        data,
+        isLoading,
+        isFetching,
+        isError,
+        error,
     } = useQuery({
-        queryKey: ['adminProducts', search],
-        queryFn: () => getAdminProductsAPI({ search }),
+        queryKey: ['adminProducts', normalizedSearch],
+        queryFn: () => getAdminProductsAPI({ search: normalizedSearch }),
+        placeholderData: (previousData) => previousData,
+        enabled: normalizedSearch.length === 0 || normalizedSearch.length >= 2,
     });
 
-    // Delete Product Mutation
     const deleteMutation = useMutation({
         mutationFn: (id: string) => deleteProductAPI(id),
         onSuccess: () => {
-            // Refetch products after successful deletion
             queryClient.invalidateQueries({ queryKey: ['adminProducts'] });
         },
     });
@@ -88,16 +91,34 @@ const AdminProductsPage = () => {
                         <Typography variant="h6" sx={{ fontWeight: 700, color: '#111827' }}>
                             All Products
                         </Typography>
-                        <TextField
-                            size="small"
-                            placeholder="Search products..."
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                            sx={{ width: { xs: '100%', md: '300px' } }}
-                        />
+
+                        <Box sx={{ width: { xs: '100%', md: '300px' }, position: 'relative' }}>
+                            <TextField
+                                size="small"
+                                placeholder="Search products..."
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                                sx={{ width: '100%' }}
+                            />
+                            {isFetching && !isLoading && (
+                                <CircularProgress
+                                    size={16}
+                                    sx={{
+                                        position: 'absolute',
+                                        right: 12,
+                                        top: '50%',
+                                        transform: 'translateY(-50%)',
+                                    }}
+                                />
+                            )}
+                        </Box>
                     </Stack>
 
-                    {isLoading ? (
+                    {normalizedSearch.length === 1 ? (
+                        <Typography sx={{ textAlign: 'center', py: 4, color: 'text.secondary' }}>
+                            Type at least 2 characters to search.
+                        </Typography>
+                    ) : isLoading ? (
                         <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
                             <CircularProgress />
                         </Box>
