@@ -1,6 +1,8 @@
+import mongoose from 'mongoose';
 import Order from '../models/orderModel.js';
 import Cart from '../models/cartModel.js';
 import Invoice from '../models/invoiceModel.js';
+import User from '../models/UserModel.js';
 import { OrderInfoLogger, OrderErrorLogger } from '../middleware/winston.js';
 
 /**
@@ -15,62 +17,107 @@ const generateInvoiceNumber = () => {
 
 // 1. Create a new order and generate a corresponding invoice
 export const createOrder = async (req, res) => {
+    const session = await mongoose.startSession();
+
     try {
+        session.startTransaction();
+
         const { address } = req.body;
         const userId = req.user.id;
 
-        // Fetch the user's cart and populate product details for price calculation
-        const cart = await Cart.findOne({ userId }).populate('products.productId');
-        
-        if (!cart || cart.products.length === 0) {
-            return res.status(400).json({ success: false, message: 'Cart is empty' });
+        if (!address || !String(address).trim()) {
+            await session.abortTransaction();
+            return res.status(400).json({
+                success: false,
+                message: 'Address is required',
+            });
         }
 
-        // Snapshot of products at their current price to ensure historical accuracy
-        const orderProducts = cart.products.map(item => ({
-            productId: item.productId._id,
-            quantity: item.quantity,
-            priceAtPurchase: item.productId.price 
-        }));
+        const cart = await Cart.findOne({ userId })
+            .populate('products.productId')
+            .session(session);
 
-        // Initialize and save the new Order
-        const newOrder = new Order({
+        if (!cart || cart.products.length === 0) {
+            await session.abortTransaction();
+            return res.status(400).json({
+                success: false,
+                message: 'Cart is empty',
+            });
+        }
+
+        const orderProducts = cart.products.map((item) => {
+            if (!item.productId) {
+                throw new Error('One of the products in the cart no longer exists');
+            }
+
+            return {
+                productId: item.productId._id,
+                quantity: item.quantity,
+                priceAtPurchase: item.priceAtAdd || item.productId.price,
+            };
+        });
+
+        const [savedOrder] = await Order.create(
+            [
+                {
+                    userId,
+                    products: orderProducts,
+                    address: String(address).trim(),
+                    totalPrice: cart.totalPrice,
+                    status: 'pending',
+                },
+            ],
+            { session }
+        );
+
+        const [savedInvoice] = await Invoice.create(
+            [
+                {
+                    invoiceNumber: generateInvoiceNumber(),
+                    orderId: savedOrder._id,
+                    userId,
+                    totalAmount: savedOrder.totalPrice,
+                },
+            ],
+            { session }
+        );
+
+        await User.findByIdAndUpdate(
             userId,
-            products: orderProducts,
-            address,
-            totalPrice: cart.totalPrice
-        });
+            { $push: { orders: savedOrder._id } },
+            { new: true, session }
+        );
 
-        const savedOrder = await newOrder.save();
+        await Cart.findOneAndDelete({ userId }, { session });
 
-        // Automatically generate an Invoice linked to this order
-        const newInvoice = new Invoice({
-            invoiceNumber: generateInvoiceNumber(),
-            orderId: savedOrder._id,
-            userId: userId,
-            totalAmount: savedOrder.totalPrice
-        });
+        await session.commitTransaction();
 
-        await newInvoice.save();
+        OrderInfoLogger.info(
+            `Order ${savedOrder._id} and Invoice ${savedInvoice.invoiceNumber} created for user: ${userId}`
+        );
 
-        // Clear the user's cart after successful transaction
-        cart.products = [];
-        cart.totalPrice = 0;
-        cart.totalItemsInCart = 0;
-        await cart.save();
-
-        OrderInfoLogger.info(`Order ${savedOrder._id} and Invoice ${newInvoice.invoiceNumber} created for user: ${userId}`);
-        
-        res.status(201).json({ 
-            success: true, 
-            message: 'Order placed and invoice generated successfully', 
+        return res.status(201).json({
+            success: true,
+            message: 'Order placed successfully',
             order: savedOrder,
-            invoiceId: newInvoice._id 
+            invoice: {
+                _id: savedInvoice._id,
+                invoiceNumber: savedInvoice.invoiceNumber,
+                totalAmount: savedInvoice.totalAmount,
+            },
         });
-
     } catch (error) {
-        OrderErrorLogger.error(`Transaction failed for user ${req.user.id}: ${error.message}`);
-        res.status(500).json({ success: false, message: 'Internal server error during order processing' });
+        await session.abortTransaction();
+        OrderErrorLogger.error(
+            `Transaction failed for user ${req.user?.id}: ${error.message}`
+        );
+
+        return res.status(500).json({
+            success: false,
+            message: 'Internal server error during order processing',
+        });
+    } finally {
+        session.endSession();
     }
 };
 

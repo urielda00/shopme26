@@ -145,8 +145,10 @@ export const createProductValidation = [
 
 // CREATE ORDER VALIDATION
 export const createOrderValidation = [
-	check('address').trim().notEmpty().withMessage('Shipping address is required'),
-	check('productsId').notEmpty().withMessage('Your cart is empty'),
+	check('address')
+		.trim()
+		.notEmpty()
+		.withMessage('Shipping address is required'),
 ];
 
 // RESET PASSWORD VALIDATION

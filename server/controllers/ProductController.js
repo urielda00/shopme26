@@ -1,24 +1,29 @@
 import Product from '../models/ProductModel.js';
 
-const normalizeProduct = (product) => ({
-  _id: String(product._id),
-  productName: product.productName,
-  price: product.price,
-  category: product.category,
-  brand: product.brand,
-  os: product.os,
-  quantity: product.quantity,
-  releaseYear: product.releaseYear,
-  shortDescription: product.shortDescription,
-  longDescription: product.longDescription,
-  images: Array.isArray(product.images)
+const normalizeProduct = (product) => {
+  const images = Array.isArray(product.images)
     ? product.images
     : Array.isArray(product.productImages)
       ? product.productImages
       : product.image
         ? [product.image]
-        : [],
-});
+        : [];
+
+  return {
+    _id: String(product._id),
+    productName: product.productName,
+    price: product.price,
+    category: product.category,
+    brand: product.brand,
+    os: product.os,
+    quantity: product.quantity,
+    releaseYear: product.releaseYear,
+    shortDescription: product.shortDescription,
+    longDescription: product.longDescription,
+    images,
+    image: images[0] || '',
+  };
+};
 
 /**
  * GET /product/readProducts
@@ -242,6 +247,57 @@ export const checkProductExists = async (req, res, next) => {
     const { field, value } = req.params;
     const exists = await Product.exists({ [field]: value });
     res.status(200).json({ success: true, exists: !!exists });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const searchProducts = async (req, res, next) => {
+  try {
+    const rawKey = req.query.key;
+
+    if (!rawKey || typeof rawKey !== 'string') {
+      return res.status(200).json({
+        success: true,
+        items: [],
+      });
+    }
+
+    const key = rawKey.trim();
+
+    if (key.length < 2) {
+      return res.status(200).json({
+        success: true,
+        items: [],
+      });
+    }
+
+    const escapedKey = key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+    const products = await Product.find({
+      $or: [
+        { productName: { $regex: escapedKey, $options: 'i' } },
+        { shortDescription: { $regex: escapedKey, $options: 'i' } },
+        { brand: { $regex: escapedKey, $options: 'i' } },
+        { category: { $regex: escapedKey, $options: 'i' } },
+      ],
+    })
+      .sort({ createdAt: -1 })
+      .limit(8);
+
+    const items = products.map((product) => {
+      const normalized = normalizeProduct(product);
+
+      return {
+        ...normalized,
+        image: normalized.images?.[0] || '',
+      };
+    });
+
+    return res.status(200).json({
+      success: true,
+      items,
+    });
   } catch (error) {
     next(error);
   }

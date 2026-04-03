@@ -12,7 +12,7 @@ import {
 import SearchIcon from "@mui/icons-material/Search";
 import { Link } from "react-router-dom";
 import axiosInstance from "../../utils/axiosInstance";
-
+import { getImageUrl } from "../../utils/getImageUrl";
 const Search: FC = () => {
 	const [data, setData] = useState<any[]>([]);
 	const [query, setQuery] = useState("");
@@ -25,8 +25,11 @@ const Search: FC = () => {
 		const fetchData = async () => {
 			if (query.length > 3) {
 				try {
-					const res = await axiosInstance.get(`/product/searchProduct?key=${query}`);
-					setData(res.data);
+					const res = await axiosInstance.get(`/product/searchProduct`, {
+						params: { key: query },
+					});
+
+					setData(res.data.items || []);
 				} catch (error) {
 					setData([]);
 				}
@@ -94,7 +97,7 @@ const Search: FC = () => {
 							>
 								<Box
 									component="img"
-									src={`${imgBaseUrl}/searchProduct/${product.image}`}
+									src={getImageUrl(product.image)}
 									sx={{ width: 40, height: 40, objectFit: "contain", mr: 2, borderRadius: "4px" }}
 								/>
 								<ListItemText

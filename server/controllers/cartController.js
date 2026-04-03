@@ -142,9 +142,25 @@ export const removeItem = async (req, res) => {
         const { productId } = req.params;
         const cart = await Cart.findOne({ userId: req.user.id });
 
-        if (!cart) return res.status(404).json({ success: false, message: 'Cart not found' });
+        if (!cart) {
+            return res.status(404).json({ success: false, message: 'Cart not found' });
+        }
 
-        cart.products = cart.products.filter(p => p.productId && p.productId.toString() !== productId);
+        cart.products = cart.products.filter(
+            (p) => p.productId && p.productId.toString() !== productId
+        );
+
+        if (cart.products.length === 0) {
+            await Cart.findByIdAndDelete(cart._id);
+
+            return res.status(200).json({
+                success: true,
+                message: 'Item removed and empty cart deleted',
+                cart: [],
+                totalPrice: 0,
+                totalItemsInCart: 0,
+            });
+        }
 
         await updateCartAndRespond(cart, res, 'Item removed from cart');
     } catch (error) {
@@ -155,16 +171,17 @@ export const removeItem = async (req, res) => {
 
 export const resetCart = async (req, res) => {
     try {
-        const cart = await Cart.findOne({ userId: req.user.id });
-        if (cart) {
-            cart.products = [];
-            cart.totalPrice = 0;
-            cart.totalItemsInCart = 0;
-            await cart.save();
-        }
-        
-        CartInfoLogger.info(`Cart cleared for user: ${req.user.id}`);
-        res.status(200).json({ success: true, message: 'Cart reset successfully' });
+        await Cart.findOneAndDelete({ userId: req.user.id });
+
+        CartInfoLogger.info(`Cart deleted for user: ${req.user.id}`);
+
+        res.status(200).json({
+            success: true,
+            message: 'Cart removed successfully',
+            cart: [],
+            totalPrice: 0,
+            totalItemsInCart: 0,
+        });
     } catch (error) {
         CartErrorLogger.error(`Reset cart failed: ${error.message}`);
         res.status(500).json({ success: false, message: 'Server error' });

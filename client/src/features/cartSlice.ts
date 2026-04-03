@@ -110,6 +110,14 @@ export const cartSlice = createSlice({
 		clearWarning: (state) => {
 			state.warningMessage = false;
 		},
+		clearCart: (state) => {
+			state.items = [];
+			state.totalPrice = 0;
+			state.totalQuantity = 0;
+			state.loading = false;
+			state.error = null;
+			state.warningMessage = false;
+		},
 	},
 	extraReducers: (builder) => {
 		builder
@@ -176,5 +184,5 @@ export const cartSlice = createSlice({
 	},
 });
 
-export const { setUserCart, resetOnLogOut, clearWarning } = cartSlice.actions;
+export const { setUserCart, resetOnLogOut, clearWarning, clearCart } = cartSlice.actions;
 export default cartSlice.reducer;

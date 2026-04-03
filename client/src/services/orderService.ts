@@ -1,10 +1,11 @@
 import axiosInstance from '../utils/axiosInstance';
 
 export const createOrderAPI = async (address: string) => {
-    // Returns the response to the component, no logs here
-    return await axiosInstance.post('/order/', { address });
+    const response = await axiosInstance.post('/order/', { address });
+    return response.data;
 };
 
 export const getMyOrdersAPI = async () => {
-    return await axiosInstance.get('/order/my-orders');
+    const response = await axiosInstance.get('/order/my-orders');
+    return response.data;
 };

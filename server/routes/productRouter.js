@@ -10,6 +10,7 @@ const router = express.Router();
 router.get('/readProducts', productController.getAllProducts);
 router.get('/related', productController.getRelatedProducts);
 router.get('/check-exists/:field/:value', productController.checkProductExists);
+router.get('/searchProduct', productController.searchProducts);
 router.get('/:id', productController.getProductById);
 
 router.post(
