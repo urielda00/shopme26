@@ -22,6 +22,7 @@ import { errorHandler } from './middleware/errorHandler.js';
 
 const app = express();
 const port = process.env.PORT || 5000;
+app.set('trust proxy', 1);
 
 // 2. Security and Middlewares
 app.use(helmet());
