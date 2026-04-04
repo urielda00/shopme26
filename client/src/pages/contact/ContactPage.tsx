@@ -22,42 +22,42 @@ const contactFields: IContactField[] = [
 
 const ContactPage: FC = () => {
 	const mailLink = import.meta.env.VITE_MAIL_LINK;
-	const thankYouLink = `${import.meta.env.VITE_FRONT_URL}/thankYou`;
-	useTitle('Contact');
+	const thankYouLink = "/thankYou";
+	useTitle("Contact");
 	return (
-    <Box
-    sx={{
-        width: '100%',
-        minHeight: 'calc(100vh - 80px)',
-        overflowX: 'hidden',
-        boxSizing: 'border-box',
-        background: 'linear-gradient(135deg, #f5f7fb 0%, #edf2f8 45%, #f8fafc 100%)',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'flex-start',
-        p: { xs: 1.5, md: 2.5 },
-        pt: { xs: '90px', md: '100px' },
-        pb: { xs: 1.5, md: 2 }
-    }}
->
-    <MotionBox
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
-        sx={{
-            width: "100%",
-            maxWidth: "760px",
-            background:
-                "linear-gradient(135deg, rgba(255,255,255,0.72) 0%, rgba(255,255,255,0.42) 100%)",
-            backdropFilter: "blur(24px) saturate(165%)",
-            WebkitBackdropFilter: "blur(24px) saturate(165%)",
-            borderRadius: "24px",
-            border: "1px solid rgba(255,255,255,0.62)",
-            boxShadow: "0 24px 60px rgba(15,23,42,0.10)",
-            p: { xs: 2, md: 3 },
-            color: "#111827",
-        }}
-    >
+		<Box
+			sx={{
+				width: "100%",
+				minHeight: "calc(100vh - 80px)",
+				overflowX: "hidden",
+				boxSizing: "border-box",
+				background: "linear-gradient(135deg, #f5f7fb 0%, #edf2f8 45%, #f8fafc 100%)",
+				display: "flex",
+				justifyContent: "center",
+				alignItems: "flex-start",
+				p: { xs: 1.5, md: 2.5 },
+				pt: { xs: "90px", md: "100px" },
+				pb: { xs: 1.5, md: 2 },
+			}}
+		>
+			<MotionBox
+				initial={{ opacity: 0, y: 30 }}
+				animate={{ opacity: 1, y: 0 }}
+				transition={{ duration: 0.6, ease: "easeOut" }}
+				sx={{
+					width: "100%",
+					maxWidth: "760px",
+					background:
+						"linear-gradient(135deg, rgba(255,255,255,0.72) 0%, rgba(255,255,255,0.42) 100%)",
+					backdropFilter: "blur(24px) saturate(165%)",
+					WebkitBackdropFilter: "blur(24px) saturate(165%)",
+					borderRadius: "24px",
+					border: "1px solid rgba(255,255,255,0.62)",
+					boxShadow: "0 24px 60px rgba(15,23,42,0.10)",
+					p: { xs: 2, md: 3 },
+					color: "#111827",
+				}}
+			>
 				<Typography
 					component="h1"
 					variant="h4"

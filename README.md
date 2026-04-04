@@ -92,7 +92,7 @@ To run the entire stack (Frontend, Backend, and Database) locally:
     Backend: Create a .env file inside the /server folder and fill in the required values, including PORT, MONGO_URI, JWT_ACCESS_KEY, and email credentials (EMAIL, EMAIL_PASS). 
 
 
-    Frontend: Create a .env file inside the /client folder and provide the necessary variables, such as VITE_BASE_BACK_URL, VITE_MAIL_LINK, and VITE_FRONT_URL.
+    Frontend: Create a .env file inside the /client folder and provide the necessary variables, such as VITE_BASE_BACK_URL, VITE_MAIL_LINK, and more.
 
 3.  **Launch with Docker Compose:**
     ```bash
