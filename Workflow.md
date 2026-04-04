@@ -1,3 +1,7 @@
+docker compose up -d --build
+docker compose logs -f
+docker compose down -v
+
 Local Development Workflow (Docker + Local IDE)
 Core Concept
 To keep VS Code IntelliSense working without errors, we maintain node_modules in two places:
