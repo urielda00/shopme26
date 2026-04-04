@@ -1,14 +1,13 @@
 import NavBar from "./components/navBar/NavBar";
-import { useLocation } from "react-router-dom";
 import Router from "./Router";
 import AuthBootstrap from "./components/AuthBootstrap";
+import RenderWakeupNotice from "./components/RenderWakeupNotice";
 
 const App = () => {
-	const { pathname } = useLocation();
-
 	return (
 		<>
 			<AuthBootstrap />
+			<RenderWakeupNotice />
 			<NavBar />
 
 			<main>

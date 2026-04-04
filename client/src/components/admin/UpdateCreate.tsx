@@ -8,7 +8,7 @@ import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
 import ArrowBackIosNewRoundedIcon from "@mui/icons-material/ArrowBackIosNewRounded";
 import CheckCircleOutlineRoundedIcon from "@mui/icons-material/CheckCircleOutlineRounded";
-
+import ConfirmActionDialog from "../admin/ConfirmActionDialog";
 import Images from "./Images";
 import RenderBtn from "./RenderBtn";
 import ErrorMessages from "./ErrorMessages";
@@ -64,6 +64,7 @@ const UpdateCreate: FC<UpdateCreateProps> = ({ isUpdate, isCreate }) => {
 	} = useCreateUpdate({ isUpdate });
 
 	const [searchTerm, setSearchTerm] = useState("");
+	const [productToDelete, setProductToDelete] = useState<ProductSearchItem | null>(null);
 	const [searchResults, setSearchResults] = useState<ProductSearchItem[]>([]);
 	const [searchLoading, setSearchLoading] = useState(false);
 	const [searchError, setSearchError] = useState("");
@@ -156,22 +157,18 @@ const UpdateCreate: FC<UpdateCreateProps> = ({ isUpdate, isCreate }) => {
 		void loadProductIntoForm(preselectedProductId);
 	}, [isUpdate, preselectedProductId]);
 
-	const handleDeleteProduct = async (product: ProductSearchItem) => {
-		const confirmed = window.confirm(
-			`Delete "${product.productName}"? This action cannot be undone.`,
-		);
-
-		if (!confirmed) return;
+	const handleDeleteProduct = async () => {
+		if (!productToDelete) return;
 
 		try {
-			setActionLoadingId(product._id);
+			setActionLoadingId(productToDelete._id);
 			setSearchError("");
 
-			await deleteProductAPI(product._id);
+			await deleteProductAPI(productToDelete._id);
 
-			setSearchResults((prev) => prev.filter((item) => item._id !== product._id));
+			setSearchResults((prev) => prev.filter((item) => item._id !== productToDelete._id));
 
-			if (selectedProduct?._id === product._id) {
+			if (selectedProduct?._id === productToDelete._id) {
 				setSelectedProduct(null);
 				reset({
 					productID: "",
@@ -189,6 +186,8 @@ const UpdateCreate: FC<UpdateCreateProps> = ({ isUpdate, isCreate }) => {
 				clearLocalImages();
 				setStep(1);
 			}
+
+			setProductToDelete(null);
 		} catch (error: any) {
 			setSearchError(
 				error?.response?.data?.message || error?.message || "Failed to delete product",
@@ -438,7 +437,7 @@ const UpdateCreate: FC<UpdateCreateProps> = ({ isUpdate, isCreate }) => {
 													color="error"
 													variant="outlined"
 													startIcon={busy ? undefined : <DeleteOutlineRoundedIcon />}
-													onClick={() => handleDeleteProduct(product)}
+													onClick={() => setProductToDelete(product)}
 													disabled={busy}
 													sx={{
 														borderRadius: "14px",
@@ -750,6 +749,20 @@ const UpdateCreate: FC<UpdateCreateProps> = ({ isUpdate, isCreate }) => {
 					</Mui.Box>
 				)}
 			</Mui.Box>
+						<ConfirmActionDialog
+				open={Boolean(productToDelete)}
+				title="Delete product"
+				description={`Are you sure you want to delete "${productToDelete?.productName || ""}"? This action cannot be undone.`}
+				confirmText="Delete"
+				cancelText="Cancel"
+				loading={Boolean(productToDelete) && actionLoadingId === productToDelete?._id}
+				danger
+				onClose={() => {
+					if (actionLoadingId) return;
+					setProductToDelete(null);
+				}}
+				onConfirm={handleDeleteProduct}
+			/>
 		</Mui.Container>
 	);
 };

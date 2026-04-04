@@ -15,6 +15,7 @@ import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import AdminLayout from '../../components/admin/AdminLayout';
+import ConfirmActionDialog from '../../components/admin/ConfirmActionDialog';
 import { deleteProductAPI, getAdminProductsAPI } from '../../services/adminService';
 import { getImageUrl } from '../../utils/getImageUrl';
 import { useDebouncedValue } from '../../hooks/useDebouncedValue';
@@ -27,8 +28,15 @@ const statCardStyles = {
     boxShadow: '0 22px 60px rgba(15,23,42,0.08)',
 };
 
+interface DeleteProductState {
+    id: string;
+    name: string;
+}
+
 const AdminProductsPage = () => {
     const [search, setSearch] = useState('');
+    const [productToDelete, setProductToDelete] = useState<DeleteProductState | null>(null);
+
     const debouncedSearch = useDebouncedValue(search, 400);
     const normalizedSearch = debouncedSearch.trim();
     const queryClient = useQueryClient();
@@ -50,15 +58,24 @@ const AdminProductsPage = () => {
         mutationFn: (id: string) => deleteProductAPI(id),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['adminProducts'] });
+            setProductToDelete(null);
         },
     });
 
     const products = data?.data?.items || [];
 
-    const handleDelete = (id: string, name: string) => {
-        if (window.confirm(`Are you sure you want to delete ${name}?`)) {
-            deleteMutation.mutate(id);
-        }
+    const openDeleteDialog = (id: string, name: string) => {
+        setProductToDelete({ id, name });
+    };
+
+    const closeDeleteDialog = () => {
+        if (deleteMutation.isPending) return;
+        setProductToDelete(null);
+    };
+
+    const confirmDelete = () => {
+        if (!productToDelete?.id) return;
+        deleteMutation.mutate(productToDelete.id);
     };
 
     return (
@@ -169,15 +186,16 @@ const AdminProductsPage = () => {
                                         >
                                             Edit
                                         </Button>
+
                                         <Button
                                             color="error"
                                             variant="outlined"
                                             startIcon={<DeleteOutlineRoundedIcon />}
-                                            disabled={deleteMutation.isPending && deleteMutation.variables === product._id}
-                                            onClick={() => handleDelete(product._id, product.productName)}
+                                            disabled={deleteMutation.isPending && productToDelete?.id === product._id}
+                                            onClick={() => openDeleteDialog(product._id, product.productName)}
                                             sx={{ borderRadius: '14px', textTransform: 'none' }}
                                         >
-                                            {deleteMutation.isPending && deleteMutation.variables === product._id ? 'Deleting...' : 'Delete'}
+                                            {deleteMutation.isPending && productToDelete?.id === product._id ? 'Deleting...' : 'Delete'}
                                         </Button>
                                     </Stack>
                                 </Box>
@@ -186,6 +204,18 @@ const AdminProductsPage = () => {
                     )}
                 </Paper>
             </Stack>
+
+            <ConfirmActionDialog
+                open={Boolean(productToDelete)}
+                title="Delete product"
+                description={`Are you sure you want to delete "${productToDelete?.name || ''}"? This action cannot be undone.`}
+                confirmText="Delete"
+                cancelText="Cancel"
+                loading={deleteMutation.isPending}
+                danger
+                onClose={closeDeleteDialog}
+                onConfirm={confirmDelete}
+            />
         </AdminLayout>
     );
 };
