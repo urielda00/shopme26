@@ -2,8 +2,6 @@ import { useEffect, useState } from "react";
 import { Backdrop, Box, Button, Fade, Modal, Typography } from "@mui/material";
 import axiosInstance from "../utils/axiosInstance";
 
-const RENDER_NOTICE_STORAGE_KEY = "render-wakeup-notice-seen";
-
 const modalStyle = {
 	position: "absolute",
 	top: "50%",
@@ -19,15 +17,10 @@ const modalStyle = {
 };
 
 const RenderWakeupNotice = () => {
-	const [open, setOpen] = useState(false);
+	// Start with the modal open by default
+	const [open, setOpen] = useState(true);
 
 	useEffect(() => {
-		const hasSeenNotice = localStorage.getItem(RENDER_NOTICE_STORAGE_KEY);
-
-		if (!hasSeenNotice) {
-			setOpen(true);
-		}
-
 		const wakeUpServer = async () => {
 			try {
 				await axiosInstance.get("/product/readProducts?page=1&per_page=1");
@@ -40,7 +33,7 @@ const RenderWakeupNotice = () => {
 	}, []);
 
 	const handleClose = () => {
-		localStorage.setItem(RENDER_NOTICE_STORAGE_KEY, "true");
+		// Just close the modal without persisting state to localStorage
 		setOpen(false);
 	};
 

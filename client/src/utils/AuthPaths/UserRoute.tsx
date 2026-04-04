@@ -7,8 +7,12 @@ interface Props {
 }
 
 const UserRoute: FC<Props> = ({ children }) => {
-    const { user } = useAppSelector((state) => state.user);
+    const { user, initialized } = useAppSelector((state) => state.user);
     const location = useLocation();
+
+    if (!initialized) {
+        return null;
+    }
 
     if (!user) {
         return <Navigate to="/login" state={{ from: location }} replace />;

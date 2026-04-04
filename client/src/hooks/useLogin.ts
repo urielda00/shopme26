@@ -1,8 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
-import { loginAPI } from "../services/authService";
+import { loginAPI, getMeAPI } from "../services/authService";
 import { setAuthUser, setLoginError } from "../features/userSlice";
-import { setUserCart, resetOnLogOut, clearCart } from "../features/cartSlice";
+import { setUserCart, resetOnLogOut } from "../features/cartSlice";
 import { syncCartAPI } from "../services/cartService";
 import { IFormValues } from "../interfaces/auth.interface";
 
@@ -17,35 +17,21 @@ const useLogin = () => {
     try {
       const guestCartSnapshot = [...localCartItems];
 
-      const response = await loginAPI(data);
+      await loginAPI(data);
 
-      const {
-        isAdmin,
-        userName,
-        userId,
-        cart = [],
-        totalPrice = 0,
-        totalItemsInCart = 0,
-      } = response.data;
-
-      window.sessionStorage.setItem("isLogged", "true");
-
-      if (isAdmin) {
-        window.sessionStorage.setItem("userName", userName);
-      } else {
-        window.sessionStorage.removeItem("userName");
-      }
+      const { data: me } = await getMeAPI();
 
       dispatch(
         setAuthUser({
-          userId,
-          userName,
-          isAdmin,
+          userId: me.userId,
+          userName: me.userName,
+          isAdmin: me.isAdmin,
         }),
       );
 
       if (guestCartSnapshot.length > 0) {
         const syncResponse = await syncCartAPI(guestCartSnapshot);
+
         dispatch(
           setUserCart({
             cart: syncResponse.data.cart || [],
@@ -56,11 +42,19 @@ const useLogin = () => {
       } else {
         dispatch(
           setUserCart({
-            cart,
-            totalPrice,
-            totalItemsInCart,
+            cart: me.cart || [],
+            totalPrice: me.totalPrice || 0,
+            totalItemsInCart: me.totalItemsInCart || 0,
           }),
         );
+      }
+
+      window.sessionStorage.setItem("isLogged", "true");
+
+      if (me.isAdmin) {
+        window.sessionStorage.setItem("userName", me.userName);
+      } else {
+        window.sessionStorage.removeItem("userName");
       }
 
       navigate("/");
