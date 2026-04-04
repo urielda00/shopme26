@@ -40,9 +40,7 @@ yarn-error.log*
 *.sw?
 
 # Local data and logs
-server/uploads/
 server/logs/
-uploads/
 logs/
 fronttodo.txt
 /Workflow.md
