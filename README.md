@@ -113,5 +113,12 @@ The platform is currently being refined with ongoing improvements to logic and d
 - [ ] Expanded Unit Testing with Jest and Supertest.
 
 ---
+## 📸 Screenshots
 
+| Storefront - Home | Product Catalog | Product Details |
+| :---: | :---: | :---: |
+| <img src="./server/utils/READMEImages/img1.png" width="250"> | <img src="./server/utils/READMEImages/img2.png" width="250"> | <img src="./server/utils/READMEImages/img3.png" width="250"> |
+| **Shopping Cart** | **Admin Dashboard** | **Admin Management** |
+| <img src="./server/utils/READMEImages/img4.png" width="250"> | <img src="./server/utils/READMEImages/img5.png" width="250"> | <img src="./server/utils/READMEImages/img6.png" width="250"> |
+---
 **Developed with focus on quality and performance.**
