@@ -44,11 +44,12 @@ const buildSessionUser = async (user) => {
 	};
 };
 
-const getCookieConfig = () => ({
+// Modified to accept dynamic maxAge so it can be used for clearing as well
+const getCookieConfig = (maxAge = 1000 * 60 * 60) => ({
 	httpOnly: true,
 	secure: process.env.NODE_ENV === "production",
 	sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-	maxAge: 1000 * 60 * 60,
+	maxAge,
 });
 
 export const register = async (req, res, next) => {
@@ -138,11 +139,8 @@ export const login = async (req, res, next) => {
 
 export const logout = async (req, res, next) => {
 	try {
-		res.clearCookie("session_token", {
-			httpOnly: true,
-			secure: process.env.NODE_ENV === "production",
-			sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-		});
+        // Use the config but override maxAge to 0 for immediate deletion
+		res.clearCookie("session_token", getCookieConfig(0));
 
 		res.status(200).json({
 			success: true,
@@ -292,11 +290,8 @@ export const deleteUser = async (req, res, next) => {
 
 		UserInfoLogger.info(`User deleted and archived: ${id}`);
 
-		res.clearCookie("session_token", {
-			httpOnly: true,
-			secure: process.env.NODE_ENV === "production",
-			sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-		});
+        // Reusing the unified cookie config
+		res.clearCookie("session_token", getCookieConfig(0));
 
 		res.status(200).json({
 			success: true,

@@ -1,4 +1,5 @@
 import Product from '../models/ProductModel.js';
+import { buildPagination, buildPagedResponse } from '../utils/helpers.js';
 
 const normalizeProduct = (product) => {
   const images = Array.isArray(product.images)
@@ -30,24 +31,8 @@ const normalizeProduct = (product) => {
  */
 export const getAllProducts = async (req, res, next) => {
   try {
-    const { page, per_page, category, brand, os, year } = req.query;
-
-    const parsedPage = Number(page);
-    const parsedPerPage = Number(per_page) || 8;
-
-    if (!parsedPage || parsedPage < 1) {
-      return res.status(400).json({
-        success: false,
-        message: 'Query param "page" is required and must be a number greater than 0',
-      });
-    }
-
-    if (parsedPerPage < 1) {
-      return res.status(400).json({
-        success: false,
-        message: 'Query param "per_page" must be a number greater than 0',
-      });
-    }
+    const { page, limit, skip } = buildPagination(req.query);
+    const { category, brand, os, year } = req.query;
 
     const filter = {};
     if (category) filter.category = category;
@@ -56,21 +41,17 @@ export const getAllProducts = async (req, res, next) => {
 
     if (year) {
       const parsedYear = Number(year);
-
       if (Number.isNaN(parsedYear)) {
         return res.status(400).json({
           success: false,
           message: 'Query param "year" must be a valid number',
         });
       }
-
       filter.releaseYear = parsedYear;
     }
 
-    const skip = (parsedPage - 1) * parsedPerPage;
-
     const [products, total] = await Promise.all([
-      Product.find(filter).sort({ createdAt: -1 }).skip(skip).limit(parsedPerPage),
+      Product.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit),
       Product.countDocuments(filter),
     ]);
 
@@ -78,10 +59,10 @@ export const getAllProducts = async (req, res, next) => {
 
     return res.status(200).json({
       items,
-      page: parsedPage,
-      perPage: parsedPerPage,
+      page,
+      perPage: limit,
       total,
-      hasNextPage: parsedPage * parsedPerPage < total,
+      hasNextPage: page * limit < total,
     });
   } catch (error) {
     next(error);
@@ -245,6 +226,17 @@ export const deleteProduct = async (req, res, next) => {
 export const checkProductExists = async (req, res, next) => {
   try {
     const { field, value } = req.params;
+    
+    // Security: Whitelist allowed fields to prevent NoSQL injection
+    const allowedFields = ['productName', 'brand', 'category', 'os', 'company'];
+    
+    if (!allowedFields.includes(field)) {
+        return res.status(400).json({ 
+            success: false, 
+            message: 'Invalid field for search' 
+        });
+    }
+
     const exists = await Product.exists({ [field]: value });
     res.status(200).json({ success: true, exists: !!exists });
   } catch (error) {

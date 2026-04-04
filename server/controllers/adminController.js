@@ -4,6 +4,7 @@ import Order from '../models/orderModel.js';
 import Invoice from '../models/invoiceModel.js';
 import UsersArchives from '../models/UsersArchivesModel.js';
 import { ProductErrorLogger, OrderErrorLogger, UserErrorLogger } from '../middleware/winston.js';
+import { buildPagination, buildPagedResponse } from '../utils/helpers.js';
 
 const escapeRegex = (value = '') => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
@@ -35,26 +36,6 @@ const normalizeProduct = (product) => {
         updatedAt: product.updatedAt,
     };
 };
-
-const buildPagination = (query) => {
-    const page = Math.max(Number(query.page) || 1, 1);
-    const limit = Math.min(Math.max(Number(query.limit) || 10, 1), 50);
-    const skip = (page - 1) * limit;
-
-    return { page, limit, skip };
-};
-
-const buildPagedResponse = ({ items, total, page, limit }) => ({
-    success: true,
-    items,
-    pagination: {
-        total,
-        page,
-        limit,
-        totalPages: Math.max(Math.ceil(total / limit), 1),
-        hasNextPage: page * limit < total,
-    },
-});
 
 export const getAdminOverview = async (req, res, next) => {
     try {

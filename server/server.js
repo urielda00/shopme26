@@ -9,13 +9,16 @@ import cookieParser from 'cookie-parser';
 // 1. Load environment variables FIRST
 dotenv.config();
 
-// Routers imports - Updated to match our new naming convention
+// Routers imports
 import cartRouter from './routes/cartRouter.js';
 import orderRouter from './routes/orderRouter.js';
 import userRouter from './routes/userRouter.js';
 import productRouter from './routes/productRouter.js';
 import resetPassRouter from './routes/resetPassRouter.js';
 import adminRouter from './routes/adminRouter.js'; 
+
+// Error handler import
+import { errorHandler } from './middleware/errorHandler.js';
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -25,13 +28,12 @@ app.use(helmet());
 app.use(helmet.crossOriginResourcePolicy({ policy: 'cross-origin' }));
 app.use(morgan('common'));
 
-// CORS setup for multiple origins
 const allowedOrigins = process.env.CLIENT_URL 
     ? process.env.CLIENT_URL.split(',').map(origin => origin.trim().replace(/\/+$/, '')) 
     : [];
+
 app.use(cors({
     origin: (origin, callback) => {
-        // Allow requests with no origin (like mobile apps or curl requests)
         if (!origin) return callback(null, true);
         
         if (allowedOrigins.indexOf(origin) !== -1) {
@@ -40,10 +42,10 @@ app.use(cors({
             callback(new Error('Not allowed by CORS'));
         }
     },
-    credentials: true // Required to allow cookies/sessions
+    credentials: true
 }));
 
-app.use(express.json({ limit: '10mb' })); // 10mb is usually enough for MERN
+app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 app.use(cookieParser());
 
@@ -56,21 +58,10 @@ app.use('/api/product', productRouter);
 app.use('/api/order', orderRouter);
 app.use('/api/resetPass', resetPassRouter);
 app.use('/api/cart', cartRouter);
- app.use('/api/admin', adminRouter);
+app.use('/api/admin', adminRouter);
 
 // 5. Global Error Handling Middleware
-app.use((err, req, res, next) => {
-    const statusCode = err.statusCode || 500;
-    const message = err.message || 'Internal Server Error';
-    
-    // In production, we hide the stack trace for security
-    res.status(statusCode).json({
-        success: false,
-        message,
-        stack: process.env.NODE_ENV === 'production' ? null : err.stack,
-    });
-});
-
+app.use(errorHandler);
 
 // 6. Database Connection logic
 const connectDB = async () => {

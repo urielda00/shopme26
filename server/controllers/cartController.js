@@ -1,11 +1,10 @@
 import mongoose from 'mongoose';
 import Cart from '../models/cartModel.js';
 import { CartInfoLogger, CartErrorLogger } from '../middleware/winston.js';
+import { calculateItemTotalInCents } from '../utils/helpers.js';
 
-// Helper function to format cart items for the frontend
 const formatCartItems = (productsArray) => {
     return productsArray
-        // מוודא שה-populate הצליח ושיש למוצר שם (כלומר הוא נמשך מה-DB בהצלחה)
         .filter(item => item.productId && item.productId.productName) 
         .map(item => {
             const product = item.productId;
@@ -14,10 +13,9 @@ const formatCartItems = (productsArray) => {
                 _id: product._id.toString(),
                 productId: product._id.toString(),
                 productName: product.productName,
-                image:
-  (Array.isArray(product.productImages) && product.productImages.length > 0
-    ? product.productImages[0]
-    : product.image) || "",
+                image: (Array.isArray(product.productImages) && product.productImages.length > 0
+                    ? product.productImages[0]
+                    : product.image) || "",
                 price: item.priceAtAdd,
                 quantity: product.quantity, 
                 itemQuantity: item.quantity 
@@ -27,18 +25,19 @@ const formatCartItems = (productsArray) => {
 
 const updateCartAndRespond = async (cart, res, message) => {
     let totalItems = 0;
-    let totalPrice = 0;
+    let totalPriceInCents = 0;
 
     cart.products.forEach(item => {
         totalItems += item.quantity;
-        totalPrice += (item.priceAtAdd || 0) * item.quantity; 
+        // Calculate in cents to avoid floating point math errors
+        totalPriceInCents += calculateItemTotalInCents(item.priceAtAdd, item.quantity); 
     });
 
     cart.totalItemsInCart = totalItems;
-    cart.totalPrice = totalPrice;
+    // Convert back to standard currency format
+    cart.totalPrice = totalPriceInCents / 100;
 
     await cart.save();
-    
     await cart.populate('products.productId');
 
     const formattedItems = formatCartItems(cart.products);
@@ -52,7 +51,7 @@ const updateCartAndRespond = async (cart, res, message) => {
     });
 };
 
-export const getCart = async (req, res) => {
+export const getCart = async (req, res, next) => {
     try {
         let cart = await Cart.findOne({ userId: req.user.id }).populate('products.productId');
 
@@ -75,11 +74,11 @@ export const getCart = async (req, res) => {
         });
     } catch (error) {
         CartErrorLogger.error(`Error fetching cart: ${error.message}`);
-        return res.status(500).json({ success: false, message: 'Server error' });
+        next(error);
     }
 };
 
-export const addToCart = async (req, res) => {
+export const addToCart = async (req, res, next) => {
     try {
         const { productId, quantity, price } = req.body;
         let cart = await Cart.findOne({ userId: req.user.id });
@@ -96,7 +95,6 @@ export const addToCart = async (req, res) => {
             cart.products[existingProductIndex].quantity += (quantity || 1);
         } else {
             cart.products.push({ 
-                // המרה אקטיבית לאובייקט כדי למנוע שמירה כטקסט
                 productId: new mongoose.Types.ObjectId(productId), 
                 quantity: quantity || 1, 
                 priceAtAdd: price 
@@ -106,11 +104,11 @@ export const addToCart = async (req, res) => {
         await updateCartAndRespond(cart, res, 'Product added to cart');
     } catch (error) {
         CartErrorLogger.error(`Add to cart failed: ${error.message}`);
-        res.status(500).json({ success: false, message: 'Internal server error' });
+        next(error);
     }
 };
 
-export const updateQuantity = async (req, res) => {
+export const updateQuantity = async (req, res, next) => {
     try {
         const { productId, action } = req.body; 
         const cart = await Cart.findOne({ userId: req.user.id });
@@ -133,11 +131,11 @@ export const updateQuantity = async (req, res) => {
         await updateCartAndRespond(cart, res, `Quantity updated (${action})`);
     } catch (error) {
         CartErrorLogger.error(`Update quantity failed: ${error.message}`);
-        res.status(500).json({ success: false, message: 'Server error' });
+        next(error);
     }
 };
 
-export const removeItem = async (req, res) => {
+export const removeItem = async (req, res, next) => {
     try {
         const { productId } = req.params;
         const cart = await Cart.findOne({ userId: req.user.id });
@@ -165,11 +163,11 @@ export const removeItem = async (req, res) => {
         await updateCartAndRespond(cart, res, 'Item removed from cart');
     } catch (error) {
         CartErrorLogger.error(`Remove item failed: ${error.message}`);
-        res.status(500).json({ success: false, message: 'Server error' });
+        next(error);
     }
 };
 
-export const resetCart = async (req, res) => {
+export const resetCart = async (req, res, next) => {
     try {
         await Cart.findOneAndDelete({ userId: req.user.id });
 
@@ -184,11 +182,11 @@ export const resetCart = async (req, res) => {
         });
     } catch (error) {
         CartErrorLogger.error(`Reset cart failed: ${error.message}`);
-        res.status(500).json({ success: false, message: 'Server error' });
+        next(error);
     }
 };
 
-export const updateInAddToCart = async (req, res) => {
+export const updateInAddToCart = async (req, res, next) => {
     try {
         const { localProducts } = req.body;
 
@@ -229,6 +227,6 @@ export const updateInAddToCart = async (req, res) => {
         await updateCartAndRespond(cart, res, "Cart synced with local storage");
     } catch (error) {
         CartErrorLogger.error(`Sync failed: ${error.message}`);
-        res.status(500).json({ success: false, message: "Sync error" });
+        next(error);
     }
 };
