@@ -3,3 +3,9 @@ npm-debug.log
 dist
 build
 .env
+.git
+.gitignore
+Dockerfile
+docker-compose.yml
+.dockerignore
+README.md
