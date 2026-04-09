@@ -1,5 +1,7 @@
 # SHOPME | Full-Stack MERN E-Commerce Platform
 
+🔗 [Live Demo](https://shopme26.netlify.app/)
+
 A robust, end-to-end e-commerce solution designed with a modern architecture, separating the client and server concerns. This platform provides a seamless shopping experience for customers and a powerful, intuitive administration panel for store management.
 
 ---
