@@ -5,6 +5,10 @@ import UsersArchives from "../models/UsersArchivesModel.js";
 import { UserErrorLogger, UserInfoLogger } from "../middleware/winston.js";
 import Cart from "../models/cartModel.js";
 
+/**
+ * Filters out invalid products and normalizes the cart item structure 
+ * to ensure consistent formatting for the client session.
+ */
 const formatCartItems = (productsArray) => {
 	return productsArray
 		.filter((item) => item.productId && item.productId.productName)
@@ -26,6 +30,10 @@ const formatCartItems = (productsArray) => {
 		});
 };
 
+/**
+ * Constructs the user session payload, aggregating essential user details 
+ * and populating their current cart state for the client context.
+ */
 const buildSessionUser = async (user) => {
 	const userCart = await Cart.findOne({ userId: user._id }).populate("products.productId");
 
@@ -44,7 +52,10 @@ const buildSessionUser = async (user) => {
 	};
 };
 
-// Modified to accept dynamic maxAge so it can be used for clearing as well
+/**
+ * Generates standardized security configuration for HTTP-only cookies.
+ * Supports dynamic expiration maxAge to handle both setting and clearing cookies.
+ */
 const getCookieConfig = (maxAge = 1000 * 60 * 60) => ({
 	httpOnly: true,
 	secure: process.env.NODE_ENV === "production",
@@ -52,6 +63,10 @@ const getCookieConfig = (maxAge = 1000 * 60 * 60) => ({
 	maxAge,
 });
 
+/**
+ * Handles new user registration, hashes passwords securely, 
+ * and validates against existing usernames or emails to prevent duplicates.
+ */
 export const register = async (req, res, next) => {
 	try {
 		const { firstName, lastName, userName, email, password, phoneNumber, avatar } = req.body;
@@ -89,6 +104,10 @@ export const register = async (req, res, next) => {
 	}
 };
 
+/**
+ * Authenticates user credentials, generates a JWT access token, 
+ * and establishes a secure session by setting an HTTP-only cookie.
+ */
 export const login = async (req, res, next) => {
 	try {
 		const { userName, password } = req.body;
@@ -137,9 +156,12 @@ export const login = async (req, res, next) => {
 	}
 };
 
+/**
+ * Terminates the user session by overriding the authentication cookie 
+ * with a zero-duration maxAge for immediate invalidation.
+ */
 export const logout = async (req, res, next) => {
 	try {
-        // Use the config but override maxAge to 0 for immediate deletion
 		res.clearCookie("session_token", getCookieConfig(0));
 
 		res.status(200).json({
@@ -151,6 +173,10 @@ export const logout = async (req, res, next) => {
 	}
 };
 
+/**
+ * Retrieves the currently authenticated user's profile 
+ * and populates their active session data.
+ */
 export const getMe = async (req, res, next) => {
 	try {
 		const user = await User.findById(req.user.id).select("-password");
@@ -167,6 +193,10 @@ export const getMe = async (req, res, next) => {
 	}
 };
 
+/**
+ * Updates basic user profile details. Enforces authorization by ensuring 
+ * the requestor is either the account owner or has administrative privileges.
+ */
 export const updateUserInfo = async (req, res, next) => {
 	try {
 		const { id } = req.params;
@@ -201,6 +231,10 @@ export const updateUserInfo = async (req, res, next) => {
 	}
 };
 
+/**
+ * Securely updates a user's password after verifying their current password.
+ * Includes strict authorization checks (owner or admin).
+ */
 export const updateUserPass = async (req, res, next) => {
 	try {
 		const { id } = req.params;
@@ -246,6 +280,10 @@ export const updateUserPass = async (req, res, next) => {
 	}
 };
 
+/**
+ * Permanently deletes a user account after password verification, 
+ * backing up essential data to the archives and clearing the session cookie.
+ */
 export const deleteUser = async (req, res, next) => {
 	try {
 		const { id } = req.params;
@@ -290,7 +328,6 @@ export const deleteUser = async (req, res, next) => {
 
 		UserInfoLogger.info(`User deleted and archived: ${id}`);
 
-        // Reusing the unified cookie config
 		res.clearCookie("session_token", getCookieConfig(0));
 
 		res.status(200).json({
@@ -302,6 +339,10 @@ export const deleteUser = async (req, res, next) => {
 	}
 };
 
+/**
+ * Verifies if a specific email or username is already registered in the system.
+ * Useful for client-side form validation.
+ */
 export const checkIfExist = async (req, res, next) => {
 	try {
 		const { data } = req.params;
