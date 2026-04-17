@@ -5,6 +5,10 @@ import { ResetPassInfoLogger, ResetPassErrorLogger } from "../middleware/winston
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 
+/**
+ * Generates a secure password reset token and sends a reset link via email.
+ * Prevents email enumeration by returning a generic success message even if the user is not found.
+ */
 export const sendLink = async (req, res, next) => {
 	try {
 		const { email } = req.body;
@@ -40,6 +44,10 @@ export const sendLink = async (req, res, next) => {
 	}
 };
 
+/**
+ * Validates the password reset token against the database record.
+ * Used to verify the URL integrity before rendering the reset password form on the client.
+ */
 export const verifyUrl = async (req, res, next) => {
 	try {
 		const { id, token } = req.params;
@@ -60,6 +68,10 @@ export const verifyUrl = async (req, res, next) => {
 	}
 };
 
+/**
+ * Verifies the token and securely updates the user's password.
+ * Cleans up the token document upon successful reset to prevent reuse.
+ */
 export const resetPass = async (req, res, next) => {
 	try {
 		const { id, token } = req.params;
