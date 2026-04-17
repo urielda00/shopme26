@@ -2,33 +2,36 @@ import winston from 'winston';
 const { transports, format, createLogger } = winston;
 const { combine, timestamp, printf, colorize, errors } = format;
 
-// Custom format for clean and readable logs
+/**
+ * Defines a standardized log format including timestamps, log levels, and stack traces.
+ */
 const customFormat = printf(({ level, message, timestamp, stack }) => {
     return `${timestamp} [${level}]: ${stack || message}`;
 });
 
-// Helper function to create loggers without repeating code
+/**
+ * Factory function to generate module-specific loggers.
+ * Routes errors and info logs to dedicated files within scoped directories, 
+ * while continuing to output to the console for local development.
+ */
 const createScopedLogger = (folder) => {
     return createLogger({
         format: combine(
             timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
-            errors({ stack: true }), // Capture stack trace if available
+            errors({ stack: true }), 
             customFormat
         ),
         transports: [
-            // Error logs
             new transports.File({
                 filename: 'errors.log',
                 dirname: `logs/${folder}`,
                 level: 'error',
             }),
-            // Info logs
             new transports.File({
                 filename: 'info.log',
                 dirname: `logs/${folder}`,
                 level: 'info',
             }),
-            // Also log to console in development
             new transports.Console({
                 format: combine(colorize(), customFormat)
             })
@@ -36,9 +39,8 @@ const createScopedLogger = (folder) => {
     });
 };
 
-// Exporting the exact same names so your existing code won't break
 export const UserInfoLogger = createScopedLogger('user');
-export const UserErrorLogger = UserInfoLogger; // Same logger handles both based on level
+export const UserErrorLogger = UserInfoLogger; 
 
 export const ProductInfoLogger = createScopedLogger('products');
 export const ProductErrorLogger = ProductInfoLogger;
