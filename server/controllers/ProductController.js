@@ -1,6 +1,10 @@
 import Product from '../models/ProductModel.js';
 import { buildPagination, buildPagedResponse } from '../utils/helpers.js';
 
+/**
+ * Standardizes the product object structure for client consumption, 
+ * ensuring images are consistently formatted as an array.
+ */
 const normalizeProduct = (product) => {
   const images = Array.isArray(product.images)
     ? product.images
@@ -27,7 +31,8 @@ const normalizeProduct = (product) => {
 };
 
 /**
- * GET /product/readProducts
+ * Retrieves a paginated list of products with optional filtering 
+ * by category, brand, OS, and release year.
  */
 export const getAllProducts = async (req, res, next) => {
   try {
@@ -70,7 +75,7 @@ export const getAllProducts = async (req, res, next) => {
 };
 
 /**
- * GET /product/:id
+ * Retrieves a single product by its unique identifier.
  */
 export const getProductById = async (req, res, next) => {
   try {
@@ -94,7 +99,8 @@ export const getProductById = async (req, res, next) => {
 };
 
 /**
- * GET /product/related?category=phone&exclude=1
+ * Fetches a limited list of products within the same category, 
+ * optionally excluding a specific product ID (useful for "Related Products" UI).
  */
 export const getRelatedProducts = async (req, res, next) => {
   try {
@@ -124,12 +130,15 @@ export const getRelatedProducts = async (req, res, next) => {
 };
 
 /**
- * Create a new product.
+ * Maps uploaded file objects to their corresponding local storage paths.
  */
 const extractImagePaths = (files = []) => {
     return files.map((file) => `/uploads/${file.filename}`);
 };
 
+/**
+ * Creates a new product record including its associated image paths.
+ */
 export const createProduct = async (req, res, next) => {
     try {
         const imagePaths = extractImagePaths(req.files);
@@ -158,6 +167,10 @@ export const createProduct = async (req, res, next) => {
     }
 };
 
+/**
+ * Updates an existing product. Dynamically constructs the update payload 
+ * by ignoring undefined or empty fields and processing new image uploads.
+ */
 export const updateProduct = async (req, res, next) => {
     try {
         const imagePaths = extractImagePaths(req.files);
@@ -175,6 +188,7 @@ export const updateProduct = async (req, res, next) => {
             payload.image = imagePaths[0];
         }
 
+        // Clean up the payload by removing empty strings, nulls, or undefined values
         Object.keys(payload).forEach((key) => {
             if (payload[key] === '' || payload[key] === undefined || payload[key] === null) {
                 delete payload[key];
@@ -201,6 +215,9 @@ export const updateProduct = async (req, res, next) => {
     }
 };
 
+/**
+ * Removes a product from the database by its ID.
+ */
 export const deleteProduct = async (req, res, next) => {
     try {
         const product = await Product.findByIdAndDelete(req.params.id);
@@ -221,13 +238,13 @@ export const deleteProduct = async (req, res, next) => {
 };
 
 /**
- * Check if a product with a specific field/value exists
+ * Validates the existence of a product based on a specific field and value. 
+ * Uses a strict whitelist to prevent NoSQL injection attacks.
  */
 export const checkProductExists = async (req, res, next) => {
   try {
     const { field, value } = req.params;
     
-    // Security: Whitelist allowed fields to prevent NoSQL injection
     const allowedFields = ['productName', 'brand', 'category', 'os', 'company'];
     
     if (!allowedFields.includes(field)) {
@@ -244,6 +261,10 @@ export const checkProductExists = async (req, res, next) => {
   }
 };
 
+/**
+ * Performs a text-based search across multiple product fields 
+ * using an escaped regular expression for security.
+ */
 export const searchProducts = async (req, res, next) => {
   try {
     const rawKey = req.query.key;
@@ -257,6 +278,7 @@ export const searchProducts = async (req, res, next) => {
 
     const key = rawKey.trim();
 
+    // Prevent overly broad searches
     if (key.length < 2) {
       return res.status(200).json({
         success: true,
@@ -264,6 +286,7 @@ export const searchProducts = async (req, res, next) => {
       });
     }
 
+    // Escape regex characters to prevent ReDoS and injection
     const escapedKey = key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
     const products = await Product.find({
