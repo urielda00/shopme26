@@ -1,5 +1,10 @@
 import mongoose from 'mongoose';
 
+/**
+ * Address Schema
+ * Manages user shipping and billing addresses.
+ * Stores both structured data for precise querying/validation and optional plain text formats.
+ */
 const AddressSchema = new mongoose.Schema(
 	{
 		userId: {
@@ -7,7 +12,6 @@ const AddressSchema = new mongoose.Schema(
 			ref: 'User',
 			required: true,
 		},
-		// Structured address info for better querying and validation
 		fullAddressInfo: [
 			{
 				city: { type: String, required: true },
@@ -18,7 +22,7 @@ const AddressSchema = new mongoose.Schema(
 			}
 		],
 		addressList: {
-			type: [String], // Simple text representations if needed
+			type: [String], 
 		},
 	},
 	{ timestamps: true }
