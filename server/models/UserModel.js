@@ -1,5 +1,10 @@
 import mongoose from 'mongoose';
 
+/**
+ * User Schema
+ * Manages authentication and user profile data.
+ * Applies strict string validation and trims inputs to ensure data consistency and security.
+ */
 const UserSchema = new mongoose.Schema(
     {
         firstName: {

@@ -1,9 +1,14 @@
 import mongoose from 'mongoose';
 
+/**
+ * Reset Token Schema
+ * Temporarily stores secure tokens for password recovery.
+ * Implements a TTL (Time-To-Live) index to automatically remove the document from the database once the expiration time is reached.
+ */
 const ResetTokenSchema = new mongoose.Schema(
     {
         userId: {
-            type: mongoose.Schema.Types.ObjectId, //reference the User model
+            type: mongoose.Schema.Types.ObjectId, 
             ref: 'User',
             required: [true, 'User ID is required'],
             unique: true,
@@ -12,10 +17,10 @@ const ResetTokenSchema = new mongoose.Schema(
             type: String, 
             required: [true, 'Token is required'] 
         },
-        expiresAt: { // Renamed to camelCase
+        expiresAt: { 
             type: Date, 
-            default: () => new Date(Date.now() + 15 * 60 * 1000), // Default to 15 minutes
-            index: { expires: 0 } // TTL index: document will be deleted at this exact time
+            default: () => new Date(Date.now() + 15 * 60 * 1000), 
+            index: { expires: 0 } 
         },
     },
     { timestamps: true }

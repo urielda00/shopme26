@@ -1,5 +1,10 @@
 import mongoose from "mongoose";
 
+/**
+ * Cart Item Sub-Schema
+ * Represents an individual product in the cart.
+ * Stores priceAtAdd to freeze the price at the moment of addition, preventing unexpected cart total changes if the global product price changes.
+ */
 const CartItemSchema = new mongoose.Schema({
     productId: {
         type: mongoose.Schema.Types.ObjectId,
@@ -12,13 +17,17 @@ const CartItemSchema = new mongoose.Schema({
         min: 1,
         default: 1,
     },
-    // priceAtAdd must be inside CartItemSchema
     priceAtAdd: {
         type: Number,
         required: true,
     },
 });
 
+/**
+ * Cart Schema
+ * Represents the active shopping cart for a user.
+ * Maintains aggregated totals for performance optimization, reducing the need for on-the-fly calculations.
+ */
 const CartSchema = new mongoose.Schema(
     {
         userId: {

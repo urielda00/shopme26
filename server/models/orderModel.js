@@ -1,5 +1,10 @@
 import mongoose from 'mongoose';
 
+/**
+ * Order Schema
+ * Manages the lifecycle of customer orders.
+ * Embeds a snapshot of the product price at the time of purchase to ensure historical financial accuracy.
+ */
 const OrderSchema = new mongoose.Schema(
     {
         userId: {
@@ -7,7 +12,6 @@ const OrderSchema = new mongoose.Schema(
             ref: 'User',
             required: true,
         },
-        // Detailed products array including quantity and price at time of purchase
         products: [
             {
                 productId: {
@@ -26,7 +30,7 @@ const OrderSchema = new mongoose.Schema(
             }
         ],
         address: {
-            type: String, // Or an object for street, city, zip
+            type: String, 
             required: true,
         },
         totalPrice: {
@@ -39,7 +43,7 @@ const OrderSchema = new mongoose.Schema(
             default: 'pending',
         },
     },
-    { timestamps: true } // This replaces the manual 'date' field with createdAt
+    { timestamps: true } 
 );
 
 const Order = mongoose.models.Order || mongoose.model('Order', OrderSchema);

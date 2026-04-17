@@ -1,8 +1,12 @@
 import mongoose from 'mongoose';
 
+/**
+ * Users Archives Schema
+ * Preserves critical data of deleted accounts for historical and legal purposes.
+ * Stores the original MongoDB ObjectId as a string to prevent auto-generation of a new ID, maintaining referential integrity with past records.
+ */
 const UsersArchivesSchema = new mongoose.Schema(
 	{
-		// Keeping the original ID as a string to reference the deleted user
 		_id: { type: String, required: true }, 
 		firstName: {
 			type: String,
@@ -28,13 +32,13 @@ const UsersArchivesSchema = new mongoose.Schema(
 			maxlength: 50,
 		},
 		phoneNumber: {
-			type: String, // Consistent with UserModel
+			type: String, 
 			required: true,
 		},
 		invoices: [
 			{
 				type: mongoose.Schema.Types.ObjectId,
-				ref: 'Invoice', // Reference to the Invoice model
+				ref: 'Invoice', 
 			},
 		],
 	},

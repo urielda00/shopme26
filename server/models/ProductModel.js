@@ -1,12 +1,17 @@
 import mongoose from 'mongoose';
 
+/**
+ * Product Schema
+ * Represents catalog items available for purchase.
+ * Utilizes specific field indexes and a compound text index to significantly optimize database search performance.
+ */
 const ProductSchema = new mongoose.Schema(
     {
         productName: {
             type: String,
             required: [true, 'Product name is required'],
             trim: true,
-            index: true // Indexed for faster searching
+            index: true 
         },
         shortDescription: {
             type: String,
@@ -39,7 +44,7 @@ const ProductSchema = new mongoose.Schema(
         category: {
             type: String,
             required: [true, 'Category is required'],
-            index: true // Optimization for filtering by category
+            index: true 
         },
     },
     { 
@@ -49,7 +54,6 @@ const ProductSchema = new mongoose.Schema(
     }
 );
 
-// Text index for global search functionality (name and descriptions)
 ProductSchema.index({ productName: 'text', shortDescription: 'text', brand: 'text' });
 
 const Product = mongoose.models.Product || mongoose.model('Product', ProductSchema);
