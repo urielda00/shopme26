@@ -3,6 +3,10 @@ import Cart from '../models/cartModel.js';
 import { CartInfoLogger, CartErrorLogger } from '../middleware/winston.js';
 import { calculateItemTotalInCents } from '../utils/helpers.js';
 
+/**
+ * Normalizes cart items structure for the client.
+ * Filters out invalid products and extracts the primary image safely.
+ */
 const formatCartItems = (productsArray) => {
     return productsArray
         .filter(item => item.productId && item.productId.productName) 
@@ -23,6 +27,10 @@ const formatCartItems = (productsArray) => {
         });
 };
 
+/**
+ * Recalculates cart totals using integer math to prevent floating point inaccuracies,
+ * saves the updated cart, and returns the formatted response.
+ */
 const updateCartAndRespond = async (cart, res, message) => {
     let totalItems = 0;
     let totalPriceInCents = 0;
@@ -51,6 +59,9 @@ const updateCartAndRespond = async (cart, res, message) => {
     });
 };
 
+/**
+ * Retrieves the current user's cart or returns an empty default structure if none exists.
+ */
 export const getCart = async (req, res, next) => {
     try {
         let cart = await Cart.findOne({ userId: req.user.id }).populate('products.productId');
@@ -78,11 +89,15 @@ export const getCart = async (req, res, next) => {
     }
 };
 
+/**
+ * Adds a new product to the cart or increments its quantity if it already exists.
+ */
 export const addToCart = async (req, res, next) => {
     try {
         const { productId, quantity, price } = req.body;
         let cart = await Cart.findOne({ userId: req.user.id });
 
+        // Initialize a new cart if the user doesn't have one
         if (!cart) {
             cart = new Cart({ userId: req.user.id, products: [] });
         }
@@ -108,6 +123,10 @@ export const addToCart = async (req, res, next) => {
     }
 };
 
+/**
+ * Modifies the quantity of a specific item in the cart.
+ * Automatically removes the item if the decremented quantity falls below 1.
+ */
 export const updateQuantity = async (req, res, next) => {
     try {
         const { productId, action } = req.body; 
@@ -135,6 +154,10 @@ export const updateQuantity = async (req, res, next) => {
     }
 };
 
+/**
+ * Removes a specific product from the cart entirely.
+ * Deletes the cart document if it becomes empty.
+ */
 export const removeItem = async (req, res, next) => {
     try {
         const { productId } = req.params;
@@ -167,6 +190,9 @@ export const removeItem = async (req, res, next) => {
     }
 };
 
+/**
+ * Deletes the entire cart document for the current user.
+ */
 export const resetCart = async (req, res, next) => {
     try {
         await Cart.findOneAndDelete({ userId: req.user.id });
@@ -186,6 +212,9 @@ export const resetCart = async (req, res, next) => {
     }
 };
 
+/**
+ * Synchronizes local storage cart items with the database cart upon login or bulk add.
+ */
 export const updateInAddToCart = async (req, res, next) => {
     try {
         const { localProducts } = req.body;
