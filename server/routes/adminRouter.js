@@ -5,17 +5,18 @@ import { requireAdmin } from '../middleware/requireAdmin.js';
 
 const adminRouter = express.Router();
 
-/*
- * All admin routes are protected and require an authenticated admin session.
- */
+// Apply authentication and admin authorization to all admin routes
 adminRouter.use(checkJWT, requireAdmin);
 
+// Dashboard overview and main entities retrieval
 adminRouter.get('/overview', adminController.getAdminOverview);
 adminRouter.get('/products', adminController.getAdminProducts);
 adminRouter.get('/users', adminController.getAdminUsers);
 adminRouter.get('/orders', adminController.getAdminOrders);
-adminRouter.patch('/orders/:id/status', adminController.updateAdminOrderStatus);
 adminRouter.get('/invoices', adminController.getAdminInvoices);
+
+// Entity status and data management
+adminRouter.patch('/orders/:id/status', adminController.updateAdminOrderStatus);
 adminRouter.patch('/users/:id', adminController.updateAdminUser);
 adminRouter.delete('/users/:id', adminController.deleteAdminUser);
 

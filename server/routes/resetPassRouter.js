@@ -4,22 +4,13 @@ import { resetPasswordValidation, validate } from '../middleware/express-validat
 
 const resetPassRouter = express.Router();
 
-/**
- * Request password reset link
- * POST /resetPass
- */
+// Initiate password reset process and generate link
 resetPassRouter.post('/', resetPassController.sendLink);
 
-/**
- * Verify reset link validity
- * GET /resetPass/reset/:id/:token
- */
+// Validate password reset token
 resetPassRouter.get('/reset/:id/:token', resetPassController.verifyUrl);
 
-/**
- * Reset password
- * POST /resetPass/reset/:id/:token
- */
+// Execute password reset with payload validation
 resetPassRouter.post(
 	'/reset/:id/:token',
 	resetPasswordValidation,

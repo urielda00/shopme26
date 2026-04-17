@@ -7,12 +7,14 @@ import { createProductValidation, validate } from '../middleware/express-validat
 
 const router = express.Router();
 
+// Public routes: Product retrieval and search
 router.get('/readProducts', productController.getAllProducts);
 router.get('/related', productController.getRelatedProducts);
 router.get('/check-exists/:field/:value', productController.checkProductExists);
 router.get('/searchProduct', productController.searchProducts);
 router.get('/:id', productController.getProductById);
 
+// Protected routes: Admin product management with image upload handling
 router.post(
     '/',
     checkJWT,

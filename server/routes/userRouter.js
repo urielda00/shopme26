@@ -11,12 +11,14 @@ import {
 
 const userRouter = express.Router();
 
+// Public routes: Authentication and user data availability checks
 userRouter.get('/checkIfExist/:data', UserController.checkIfExist);
 userRouter.post('/register', registerValidation, validate, UserController.register);
 userRouter.post('/login', loginValidation, validate, UserController.login);
+
+// Protected routes: User session and profile management
 userRouter.post('/logout', checkJWT, UserController.logout);
 userRouter.get('/me', checkJWT, UserController.getMe);
-
 userRouter.patch('/updateUserInfo/:id', checkJWT, UserController.updateUserInfo);
 
 userRouter.patch(
