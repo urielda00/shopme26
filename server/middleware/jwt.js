@@ -1,6 +1,11 @@
 import jwt from 'jsonwebtoken';
 import { UserErrorLogger } from './winston.js';
 
+/**
+ * Middleware to verify JWT authentication.
+ * Extracts the token from cookies or authorization headers, validates its signature,
+ * and attaches the decoded user context to the request object for downstream use.
+ */
 export const checkJWT = async (req, res, next) => {
     const token = req.cookies.session_token || req.headers.authorization?.split(' ')[1];
 
