@@ -1,19 +1,24 @@
 import { check, validationResult } from 'express-validator';
 
-// Standard middleware to handle validation results
+/**
+ * Standard middleware to evaluate validation results.
+ * Formats and returns a clean array of error messages if validation fails.
+ */
 export const validate = (req, res, next) => {
 	const errors = validationResult(req);
 	if (!errors.isEmpty()) {
 		return res.status(422).json({
 			success: false,
-			// Using map to return only the error messages in a clean array
 			errors: errors.array().map((err) => err.msg),
 		});
 	}
 	next();
 };
 
-// REGISTER VALIDATION
+/**
+ * Validates user registration payload.
+ * Enforces required fields, string length constraints, email formatting, and password confirmation.
+ */
 export const registerValidation = [
 	check('firstName')
 		.trim()
@@ -55,7 +60,6 @@ export const registerValidation = [
 		.notEmpty()
 		.withMessage('Please confirm your password')
 		.custom((value, { req }) => {
-			// Professional way to check if passwords match
 			if (value !== req.body.password) {
 				throw new Error('Passwords do not match');
 			}
@@ -69,13 +73,17 @@ export const registerValidation = [
 		.withMessage('Please provide a valid mobile phone number'),
 ];
 
-// LOGIN VALIDATION
+/**
+ * Validates login credentials presence.
+ */
 export const loginValidation = [
 	check('userName').trim().notEmpty().withMessage('Username is required'),
 	check('password').trim().notEmpty().withMessage('Password is required'),
 ];
 
-// UPDATE PASSWORD VALIDATION
+/**
+ * Validates the password update process, ensuring the new password matches the confirmation.
+ */
 export const updateUserPassValidation = [
 	check('insertPrePassword').trim().notEmpty().withMessage('Existing password is required'),
 
@@ -98,12 +106,16 @@ export const updateUserPassValidation = [
 		}),
 ];
 
-// DELETE USER VALIDATION
+/**
+ * Ensures password confirmation is provided before processing account deletion.
+ */
 export const deleteUserValidation = [
 	check('password').trim().notEmpty().withMessage('Please enter your password to confirm deletion'),
 ];
 
-// CREATE PRODUCT VALIDATION
+/**
+ * Validates product creation and update payloads against business rules.
+ */
 export const createProductValidation = [
 	check('productName')
 		.trim()
@@ -143,7 +155,9 @@ export const createProductValidation = [
 		.withMessage('Quantity must be a number'),
 ];
 
-// CREATE ORDER VALIDATION
+/**
+ * Validates checkout payloads.
+ */
 export const createOrderValidation = [
 	check('address')
 		.trim()
@@ -151,7 +165,9 @@ export const createOrderValidation = [
 		.withMessage('Shipping address is required'),
 ];
 
-// RESET PASSWORD VALIDATION
+/**
+ * Validates new password strength requirements during the password recovery flow.
+ */
 export const resetPasswordValidation = [
 	check('password')
 		.trim()
