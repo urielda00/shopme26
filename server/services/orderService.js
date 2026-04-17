@@ -5,7 +5,7 @@ import Invoice from '../models/invoiceModel.js';
 import User from '../models/UserModel.js';
 
 /**
- * Helper to generate a unique, human-readable invoice number.
+ * Generates a unique, human-readable invoice number.
  * Format: INV-timestamp-random
  */
 const generateInvoiceNumber = () => {
@@ -16,7 +16,7 @@ const generateInvoiceNumber = () => {
 
 /**
  * Processes a new order inside a MongoDB transaction.
- * Extracted from the controller to keep business logic isolated and testable.
+ * Ensures ACID properties for cart deletion, order creation, and user update.
  */
 export const processNewOrder = async (userId, address) => {
     const session = await mongoose.startSession();
@@ -24,16 +24,19 @@ export const processNewOrder = async (userId, address) => {
     try {
         session.startTransaction();
 
+        // Fetch user cart with populated product details
         const cart = await Cart.findOne({ userId })
             .populate('products.productId')
             .session(session);
 
+        // Validate cart state
         if (!cart || cart.products.length === 0) {
             const error = new Error('Cart is empty');
             error.statusCode = 400;
             throw error;
         }
 
+        // Prepare product array for the order
         const orderProducts = cart.products.map((item) => {
             if (!item.productId) {
                 const error = new Error('One of the products in the cart no longer exists');
@@ -48,6 +51,7 @@ export const processNewOrder = async (userId, address) => {
             };
         });
 
+        // Create order document
         const [savedOrder] = await Order.create(
             [
                 {
@@ -61,6 +65,7 @@ export const processNewOrder = async (userId, address) => {
             { session }
         );
 
+        // Create corresponding invoice
         const [savedInvoice] = await Invoice.create(
             [
                 {
@@ -73,18 +78,21 @@ export const processNewOrder = async (userId, address) => {
             { session }
         );
 
+        // Link order to user history
         await User.findByIdAndUpdate(
             userId,
             { $push: { orders: savedOrder._id } },
             { new: true, session }
         );
 
+        // Clear the cart after successful processing
         await Cart.findOneAndDelete({ userId }, { session });
 
         await session.commitTransaction();
 
         return { savedOrder, savedInvoice };
     } catch (error) {
+        // Rollback all changes if any step fails
         await session.abortTransaction();
         throw error;
     } finally {

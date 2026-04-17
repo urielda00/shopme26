@@ -6,10 +6,9 @@ import express from 'express';
 import mongoose from 'mongoose';
 import cookieParser from 'cookie-parser';
 
-// 1. Load environment variables FIRST
+// Initialize environment variables before any other module imports to ensure availability
 dotenv.config();
 
-// Routers imports
 import cartRouter from './routes/cartRouter.js';
 import orderRouter from './routes/orderRouter.js';
 import userRouter from './routes/userRouter.js';
@@ -17,18 +16,22 @@ import productRouter from './routes/productRouter.js';
 import resetPassRouter from './routes/resetPassRouter.js';
 import adminRouter from './routes/adminRouter.js'; 
 
-// Error handler import
 import { errorHandler } from './middleware/errorHandler.js';
 
 const app = express();
 const port = process.env.PORT || 5000;
+
+// Trust proxy required for secure cookie configuration when running behind reverse proxies (e.g., Nginx, render)
 app.set('trust proxy', 1);
 
-// 2. Security and Middlewares
+// Apply standard security headers
 app.use(helmet());
 app.use(helmet.crossOriginResourcePolicy({ policy: 'cross-origin' }));
+
+// HTTP request logging for monitoring
 app.use(morgan('common'));
 
+// Dynamic CORS configuration to support multiple environments
 const allowedOrigins = process.env.CLIENT_URL 
     ? process.env.CLIENT_URL.split(',').map(origin => origin.trim().replace(/\/+$/, '')) 
     : [];
@@ -43,17 +46,19 @@ app.use(cors({
             callback(new Error('Not allowed by CORS'));
         }
     },
-    credentials: true
+    // Allow cookies to be sent across origins
+    credentials: true 
 }));
 
+// Body parsers with payload limits to prevent DOS attacks via large payloads
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 app.use(cookieParser());
 
-// 3. Static Files
+// Serve uploaded assets statically
 app.use('/uploads', express.static('uploads'));
 
-// 4. Routes Integration
+// Mount application routes
 app.use('/api/auth', userRouter);
 app.use('/api/product', productRouter);
 app.use('/api/order', orderRouter);
@@ -61,10 +66,10 @@ app.use('/api/resetPass', resetPassRouter);
 app.use('/api/cart', cartRouter);
 app.use('/api/admin', adminRouter);
 
-// 5. Global Error Handling Middleware
+// Centralized error handling pipeline
 app.use(errorHandler);
 
-// 6. Database Connection logic
+// Database initialization and server startup
 const connectDB = async () => {
     try {
         const mongoURI = process.env.MONGO_URI;
@@ -81,11 +86,12 @@ const connectDB = async () => {
         });
     } catch (error) {
         console.error(`Database Connection Error: ${error.message}`);
-        process.exit(1);
+        // Fail fast if DB connection fails
+        process.exit(1); 
     }
 };
 
-// 7. Handle unhandled promise rejections
+// Catch asynchronous exceptions outside of express routes to prevent silent crashes
 process.on('unhandledRejection', (err) => {
     console.log('UNHANDLED REJECTION! Shutting down...');
     console.error(err);
