@@ -3,7 +3,8 @@ import { processNewOrder } from '../services/orderService.js';
 import { OrderInfoLogger, OrderErrorLogger } from '../middleware/winston.js';
 
 /**
- * 1. Create a new order and generate a corresponding invoice
+ * Creates a new order and generates a corresponding invoice.
+ * Delegates the core business logic to the dedicated order service.
  */
 export const createOrder = async (req, res, next) => {
     try {
@@ -17,7 +18,6 @@ export const createOrder = async (req, res, next) => {
             });
         }
 
-        // Business logic is now handled in the dedicated service
         const { savedOrder, savedInvoice } = await processNewOrder(userId, address);
 
         OrderInfoLogger.info(
@@ -38,18 +38,18 @@ export const createOrder = async (req, res, next) => {
         OrderErrorLogger.error(
             `Transaction failed for user ${req.user?.id}: ${error.message}`
         );
-        next(error); // Pass to global error handler
+        next(error);
     }
 };
 
 /**
- * 2. Read all orders for the logged-in user
+ * Retrieves all orders for the currently authenticated user.
+ * Results are populated with basic product details and sorted by newest first.
  */
 export const readOrders = async (req, res, next) => {
     try {
         const userId = req.user.id;
 
-        // Fetch all orders for the user, newest first, with basic product info
         const orders = await Order.find({ userId })
             .sort({ createdAt: -1 })
             .populate('products.productId', 'productName price');
@@ -57,12 +57,13 @@ export const readOrders = async (req, res, next) => {
         res.status(200).json({ success: true, orders });
     } catch (error) {
         OrderErrorLogger.error(`Failed to fetch orders for user ${req.user.id}: ${error.message}`);
-        next(error); // Unified error handling
+        next(error);
     }
 };
 
 /**
- * 3. Read a specific order by ID (verified by user ownership)
+ * Retrieves a specific order by its ID.
+ * Validates that the requested order belongs to the authenticated user to prevent unauthorized access.
  */
 export const readOrderById = async (req, res, next) => {
     try {
