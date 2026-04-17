@@ -1,6 +1,10 @@
 import User from '../models/UserModel.js';
 import { UserErrorLogger } from './winston.js';
 
+/**
+ * Authorization middleware for administrative routes.
+ * Verifies the authenticated user's role against the database to ensure admin privileges.
+ */
 export const requireAdmin = async (req, res, next) => {
     try {
         if (!req.user?.id) {
