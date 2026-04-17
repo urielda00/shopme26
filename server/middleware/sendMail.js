@@ -4,7 +4,8 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 /**
- * Initialize the transporter once outside the function to reuse the connection pool
+ * Initializes a reusable Nodemailer transport pool outside the execution context
+ * to optimize connection overhead for subsequent email dispatches.
  */
 const transporter = nodemailer.createTransport({
 	service: 'gmail',
@@ -14,6 +15,9 @@ const transporter = nodemailer.createTransport({
 	},
 });
 
+/**
+ * Sends a plain-text email using the configured transporter.
+ */
 export const sendMail = async (email, subject, text) => {
 	if (!process.env.EMAIL || !process.env.EMAIL_PASS) {
 		throw new Error('Missing EMAIL or EMAIL_PASS environment variables');
